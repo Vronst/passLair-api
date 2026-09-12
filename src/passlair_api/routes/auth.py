@@ -57,7 +57,7 @@ def user() -> str:
     """
     Form to edit all user fields.
     """
-    return render_template("user")
+    return render_template("user.html")
 
 
 @auth.route("/user", methods=["POST"])
@@ -65,4 +65,31 @@ def _user() -> str:
     """
     Save edit form changes and redirect.
     """
-    return render_template("user")
+    return render_template("user.html")
+
+
+@auth.route("/reset_password", methods=["GET"])
+def reset_password() -> str:
+    """
+    Form for backup phrases that allows for password change.
+    """
+    return render_template("reset_password.html")
+
+
+@auth.route("/reset_password/new_password", methods=["GET"])
+def new_password() -> str:
+    """
+    Allows to set new password.
+    """
+    return render_template("new_password_for_reset.html")
+
+@auth.route("/reset_password/new_password", methods=["POST"])
+def _new_password() -> Response:
+    """
+    After successfull authorization with backup phrases, sents user to landing page.
+    Set new message with new backup phrase.
+    """
+    # if fail
+    return redirect(url_for("auth.reset_password"))
+    # if success
+    return redirect(url_for("password_manager.landing"))
