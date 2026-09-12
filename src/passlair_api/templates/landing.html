@@ -1,15 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        Test
-    </head>
-    <body>
-        <ul>
-        {% for link in links %}
-        <li>
-            <a href="{{ url_for(link.url) }}">{{ link.label }}</a>
-        </li>
+{% extends "base.html" %}
+
+{% if request.blueprint == 'password_manager' %}
+    {% set page_title = "Passwords" %}
+    {% set page_description = "Save a new password, edit one you already have, or remove one you no longer need." %}
+    {% set default_actions = [
+        ("password_manager.save_password", "Save a new password"),
+        ("password_manager.edit_password", "Edit a password"),
+        ("password_manager.delete_password", "Delete a password"),
+    ] %}
+{% elif request.blueprint == 'Data' %}
+    {% set page_title = "Data" %}
+    {% set page_description = "Export your vault to a file, or import one from elsewhere." %}
+    {% set default_actions = [
+        ("Data.export_passwords", "Export passwords"),
+        ("Data.import_passwords", "Import passwords"),
+    ] %}
+{% else %}
+    {% set page_title = "Account" %}
+    {% set page_description = "Change your information, or manage your saved data." %}
+    {% set default_actions = [
+        ("Authorization.user", "Edit your information"),
+        ("Authorization.logout", "Log out"),
+    ] %}
+{% endif %}
+
+{% block title %}{{ page_title }} · passLair{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">{{ page_title }}</h1>
+    <p class="page-description">{{ page_description }}</p>
+
+    <ul class="action-list">
+        {% for endpoint, label in default_actions %}
+        <li><a href="{{ url_for(endpoint) }}">{{ label }}</a></li>
         {% endfor %}
-        </ul>
-    </body>
-</html>
+        {% for link in links | default([]) %}
+        <li><a href="{{ url_for(link.url) }}">{{ link.label }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

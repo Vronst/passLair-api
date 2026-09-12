@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Your information · passLair{% endblock %}
+
+{% block content %}
+    <a class="back-link" href="{{ url_for('Authorization.landing') }}">&larr; Account</a>
+    <h1 class="page-title">Your information</h1>
+    <p class="page-description">Update your account details below.</p>
+
+    <div class="card">
+        <form method="post" action="">
+            <label>
+                Username
+                <input type="text" name="username" value="{{ user.username if user else '' }}" autocomplete="username" required>
+            </label>
+            <label>
+                Email
+                <input type="email" name="email" value="{{ user.email if user else '' }}" autocomplete="email" required>
+            </label>
+            <label>
+                New password
+                <input type="password" name="password" autocomplete="new-password">
+                <span class="field-hint">Leave blank to keep your current password.</span>
+            </label>
+            <label>
+                Confirm new password
+                <input type="password" name="password_confirm" autocomplete="new-password">
+            </label>
+            <div class="actions-row">
+                <button type="submit" class="btn-primary">Save changes</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,271 @@
+/* passLair — gold & purple, kept simple on purpose. */
+
+:root {
+  --purple-950: #17081f;
+  --purple-900: #21102e;
+  --purple-800: #331645;
+  --purple-700: #472263;
+  --purple-600: #5c2d81;
+  --gold-400: #e9c869;
+  --gold-500: #d4af37;
+  --gold-600: #b3902a;
+  --text: #f2e9d8;
+  --text-dim: #c9b8e0;
+  --danger: #e0665c;
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--purple-950);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--gold-400);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--purple-900);
+  border-bottom: 1px solid var(--purple-700);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gold-500);
+}
+
+.brand img {
+  width: 28px;
+  height: 28px;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.site-nav a.active,
+.site-nav a:hover {
+  color: var(--gold-400);
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.page-title {
+  color: var(--gold-500);
+  margin-bottom: 0.25rem;
+}
+
+.page-description {
+  color: var(--text-dim);
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: var(--purple-900);
+  border: 1px solid var(--purple-700);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.action-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.action-list a {
+  display: block;
+  padding: 0.9rem 1.1rem;
+  background: var(--purple-800);
+  border: 1px solid var(--purple-700);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.action-list a:hover {
+  border-color: var(--gold-500);
+  color: var(--gold-400);
+  text-decoration: none;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+input,
+textarea {
+  background: var(--purple-950);
+  border: 1px solid var(--purple-700);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.8rem;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--gold-500);
+}
+
+textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.field-hint {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+.actions-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+button,
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: var(--gold-500);
+  color: var(--purple-950);
+}
+
+.btn-primary:hover {
+  background: var(--gold-400);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--purple-700);
+}
+
+.btn-secondary:hover {
+  color: var(--text);
+  border-color: var(--gold-500);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.btn-danger:hover {
+  background: var(--danger);
+  color: var(--purple-950);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--purple-700);
+  font-size: 0.8rem;
+}
+
+/* Phones: tighter spacing, centered header, full-width stacked actions
+   so buttons stay easy to hit with a thumb and nothing needs to scroll
+   sideways. */
+@media (max-width: 480px) {
+  .site-header {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .site-nav {
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  main {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
+  .actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions-row > * {
+    width: 100%;
+    text-align: center;
+  }
+}

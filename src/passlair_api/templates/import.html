@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Import · passLair{% endblock %}
+
+{% block content %}
+    <a class="back-link" href="{{ url_for('Data.landing') }}">&larr; Data</a>
+    <h1 class="page-title">Import passwords</h1>
+    <p class="page-description">Paste an export below, or upload the file.</p>
+
+    <div class="card">
+        <form method="post" action="" enctype="multipart/form-data">
+            <label>
+                Export file
+                <input type="file" name="import_file">
+            </label>
+            <label>
+                Or paste export data
+                <textarea name="import_text" placeholder="Paste your exported vault here"></textarea>
+            </label>
+            <div class="actions-row">
+                <button type="submit" class="btn-primary">Import</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

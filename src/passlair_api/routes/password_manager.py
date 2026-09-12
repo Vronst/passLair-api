@@ -3,7 +3,7 @@ from werkzeug.utils import redirect
 from werkzeug.wrappers.response import Response
 
 password_manager = Blueprint(
-    "Password Manager", __name__, template_folder="../templates", url_prefix="/passwords"
+    "password_manager", __name__, template_folder="../templates", url_prefix="/passwords"
 )
 
 

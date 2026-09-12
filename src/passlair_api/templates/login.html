@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Log in · passLair{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Log in</h1>
+    <p class="page-description">Unlock your vault.</p>
+
+    <div class="card">
+        <form method="post" action="">
+            <label>
+                Username
+                <input type="text" name="username" autocomplete="username" required>
+            </label>
+            <label>
+                Password
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+            <div class="actions-row">
+                <button type="submit" class="btn-primary">Log in</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

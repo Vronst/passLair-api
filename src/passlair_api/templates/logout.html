@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Log out · passLair{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Log out</h1>
+    <p class="page-description">You're about to end your session.</p>
+
+    <div class="card">
+        <form method="post" action="">
+            <div class="actions-row">
+                <button type="submit" class="btn-primary">Log out</button>
+                <a class="btn btn-secondary" href="{{ url_for('Authorization.landing') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

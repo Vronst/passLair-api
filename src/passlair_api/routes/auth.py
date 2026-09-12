@@ -31,18 +31,15 @@ def _login() -> Response:
     """
     Log in and redirect.
     """
-    raise NotImplementedError
 
     return redirect(url_for("password_manager.landing"))
 
 
 @auth.route("/logout", methods=["GET"])
-def logout() -> Response:
+def logout() -> str:
     """
     Basic log out form.
     """
-    raise NotImplementedError
-
     return render_template("logout.html")
 
 
@@ -51,7 +48,6 @@ def _logout() -> Response:
     """
     Log out and redirect.
     """
-    raise NotImplementedError
 
     return redirect(url_for("auth.login"))
 

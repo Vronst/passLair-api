@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Export · passLair{% endblock %}
+
+{% block content %}
+    <a class="back-link" href="{{ url_for('Data.landing') }}">&larr; Data</a>
+    <h1 class="page-title">Export passwords</h1>
+    <p class="page-description">Confirm your password to download your vault.</p>
+
+    <div class="card">
+        <form method="post" action="">
+            <label>
+                Password
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+            <div class="actions-row">
+                <button type="submit" class="btn-primary">Export</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
