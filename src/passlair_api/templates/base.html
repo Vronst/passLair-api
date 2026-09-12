@@ -9,12 +9,12 @@
 </head>
 <body>
     <header class="site-header">
-        <a class="brand" href="{{ url_for('Authorization.landing') }}">
+        <a class="brand" href="{{ url_for('auth.landing') }}">
             <img src="{{ url_for('static', filename='lock.svg') }}" alt="">
             passLair
         </a>
         <nav class="site-nav">
-            <a href="{{ url_for('Authorization.landing') }}"{% if request.blueprint == 'Authorization' %} class="active"{% endif %}>Account</a>
+            <a href="{{ url_for('auth.landing') }}"{% if request.blueprint == 'auth' %} class="active"{% endif %}>Account</a>
             <a href="{{ url_for('password_manager.landing') }}"{% if request.blueprint == 'password_manager' %} class="active"{% endif %}>Passwords</a>
             <a href="{{ url_for('Data.landing') }}"{% if request.blueprint == 'Data' %} class="active"{% endif %}>Data</a>
         </nav>

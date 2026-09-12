@@ -3,7 +3,7 @@ from werkzeug.wrappers.response import Response
 
 
 auth = Blueprint(
-    "Authorization", __name__, template_folder="../templates", url_prefix="/auth"
+    "auth", __name__, template_folder="../templates", url_prefix="/auth"
 )
 
 

@@ -3,7 +3,7 @@
 {% block title %}Your information · passLair{% endblock %}
 
 {% block content %}
-    <a class="back-link" href="{{ url_for('Authorization.landing') }}">&larr; Account</a>
+    <a class="back-link" href="{{ url_for('auth.landing') }}">&larr; Account</a>
     <h1 class="page-title">Your information</h1>
     <p class="page-description">Update your account details below.</p>
 
