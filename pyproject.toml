@@ -1,13 +1,17 @@
 [project]
 name = "passlair-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "Flask app - password manager"
 readme = "README.md"
 authors = [
     { name = "Adam Sarga", email = "vronst@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "flask>=3.1.3",
+    "jinja2>=3.1.6",
+    "passlair",
+]
 
 [project.scripts]
 passlair-api = "passlair_api:main"
@@ -15,3 +19,6 @@ passlair-api = "passlair_api:main"
 [build-system]
 requires = ["uv_build>=0.11.14,<0.12.0"]
 build-backend = "uv_build"
+
+[tool.uv.sources]
+passlair = { git = "https://github.com/Vronst/passLair-core" }

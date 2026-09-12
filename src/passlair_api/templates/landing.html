@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        Test
+    </head>
+    <body>
+        <ul>
+        {% for link in links %}
+        <li>
+            <a href="{{ url_for(link.url) }}">{{ link.label }}</a>
+        </li>
+        {% endfor %}
+        </ul>
+    </body>
+</html>
