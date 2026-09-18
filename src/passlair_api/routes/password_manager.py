@@ -3,7 +3,10 @@ from werkzeug.utils import redirect
 from werkzeug.wrappers.response import Response
 
 password_manager = Blueprint(
-    "password_manager", __name__, template_folder="../templates", url_prefix="/passwords"
+    "password_manager",
+    __name__,
+    template_folder="../templates",
+    url_prefix="/passwords",
 )
 
 
@@ -17,7 +20,7 @@ def landing() -> str:
     return render_template("landing.html")
 
 
-@password_manager.route("/save", methods=['GET'])
+@password_manager.route("/save", methods=["GET"])
 def save_password() -> str:
     """
     Basic form to save service, login and password.
@@ -25,7 +28,7 @@ def save_password() -> str:
     return render_template("passwords.html")
 
 
-@password_manager.route("/save", methods=['POST'])
+@password_manager.route("/save", methods=["POST"])
 def _save_password() -> Response:
     """
     Save result of the save form.
@@ -33,7 +36,7 @@ def _save_password() -> Response:
     return redirect(url_for("password_manager.landing"))
 
 
-@password_manager.route("/edit", methods=['GET'])
+@password_manager.route("/edit", methods=["GET"])
 def edit_password() -> str:
     """
     Form allowing to edit password details.
@@ -41,7 +44,7 @@ def edit_password() -> str:
     return render_template("passwords.html")
 
 
-@password_manager.route("/edit", methods=['POST'])
+@password_manager.route("/edit", methods=["POST"])
 def _edit_password() -> Response:
     """
     Save result of the edit form.
@@ -49,7 +52,7 @@ def _edit_password() -> Response:
     return redirect(url_for("password_manager.landing"))
 
 
-@password_manager.route("/delete", methods=['GET'])
+@password_manager.route("/delete", methods=["GET"])
 def delete_password() -> str:
     """
     Basic form to confirm deletion.
@@ -57,7 +60,7 @@ def delete_password() -> str:
     return render_template("passwords.html")
 
 
-@password_manager.route("/delete", methods=['POST'])
+@password_manager.route("/delete", methods=["POST"])
 def _delete_password() -> Response:
     """
     Deletes password and redirects.

@@ -1,0 +1,42 @@
+services:
+
+  server:
+    image: nginx
+    volumes:
+    - ./templates:/etc/nginx/templates
+    ports:
+    - "8080:80"
+    environment:
+    - NGINX_HOST=foobar.com
+    - NGINX_PORT=80
+
+    cache:
+      image: redis:7.4-alpine
+      restart: always
+      ports:
+        - "6379:6379"
+      command: redis-server --save 20 1 --loglevel warning --requirepass yourpassword
+      volumes:
+        - cache:/data
+
+  db:
+    image: mariadb:11
+    container_name: mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    env_file:
+      - .env
+
+volumes:
+  cache:
+    driver: local
+  server:
+  mariadb-data:

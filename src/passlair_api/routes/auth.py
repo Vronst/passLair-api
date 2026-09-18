@@ -2,9 +2,7 @@ from flask import Blueprint, redirect, render_template, url_for
 from werkzeug.wrappers.response import Response
 
 
-auth = Blueprint(
-    "auth", __name__, template_folder="../templates", url_prefix="/auth"
-)
+auth = Blueprint("auth", __name__, template_folder="../templates", url_prefix="/auth")
 
 
 @auth.route("/")
@@ -82,6 +80,7 @@ def new_password() -> str:
     Allows to set new password.
     """
     return render_template("new_password_for_reset.html")
+
 
 @auth.route("/reset_password/new_password", methods=["POST"])
 def _new_password() -> Response:
