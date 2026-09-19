@@ -25,3 +25,8 @@ build-backend = "uv_build"
 
 [tool.uv.sources]
 passlair = { git = "https://github.com/Vronst/passLair-core" }
+
+[dependency-groups]
+dev = [
+    "python-dotenv>=1.2.3",
+]

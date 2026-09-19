@@ -16,7 +16,7 @@
         <nav class="site-nav">
             <a href="{{ url_for('auth.landing') }}"{% if request.blueprint == 'auth' %} class="active"{% endif %}>Account</a>
             <a href="{{ url_for('password_manager.landing') }}"{% if request.blueprint == 'password_manager' %} class="active"{% endif %}>Passwords</a>
-            <a href="{{ url_for('Data.landing') }}"{% if request.blueprint == 'Data' %} class="active"{% endif %}>Data</a>
+            <a href="{{ url_for('data.landing') }}"{% if request.blueprint == 'data' %} class="active"{% endif %}>Data</a>
         </nav>
     </header>
 

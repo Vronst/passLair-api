@@ -8,12 +8,12 @@
         ("password_manager.edit_password", "Edit a password"),
         ("password_manager.delete_password", "Delete a password"),
     ] %}
-{% elif request.blueprint == 'Data' %}
+{% elif request.blueprint == 'data' %}
     {% set page_title = "Data" %}
     {% set page_description = "Export your vault to a file, or import one from elsewhere." %}
     {% set default_actions = [
-        ("Data.export_passwords", "Export passwords"),
-        ("Data.import_passwords", "Import passwords"),
+        ("data.export_passwords", "Export passwords"),
+        ("data.import_passwords", "Import passwords"),
     ] %}
 {% else %}
     {% set page_title = "Account" %}

@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template, url_for
+from flask import Blueprint, render_template, request, url_for
 from werkzeug.utils import redirect
-from werkzeug.wrappers.response import Response
+from flask.typing import ResponseReturnValue
+from ..helpers.functions import check_login
+
 
 password_manager = Blueprint(
     "password_manager",
@@ -8,6 +10,7 @@ password_manager = Blueprint(
     template_folder="../templates",
     url_prefix="/passwords",
 )
+password_manager.before_request(check_login)
 
 
 @password_manager.route("/")
@@ -20,49 +23,37 @@ def landing() -> str:
     return render_template("landing.html")
 
 
-@password_manager.route("/save", methods=["GET"])
-def save_password() -> str:
+@password_manager.route("/save", methods=["GET", "POST"])
+def save_password() -> ResponseReturnValue:
     """
     Basic form to save service, login and password.
-    """
-    return render_template("passwords.html")
-
-
-@password_manager.route("/save", methods=["POST"])
-def _save_password() -> Response:
-    """
     Save result of the save form.
     """
-    return redirect(url_for("password_manager.landing"))
+    if request.method == "POST":
+        return redirect(url_for("password_manager.landing"))
+
+    return render_template("passwords.html")
 
 
-@password_manager.route("/edit", methods=["GET"])
-def edit_password() -> str:
+@password_manager.route("/edit", methods=["GET", "POST"])
+def edit_password() -> ResponseReturnValue:
     """
     Form allowing to edit password details.
-    """
-    return render_template("passwords.html")
-
-
-@password_manager.route("/edit", methods=["POST"])
-def _edit_password() -> Response:
-    """
     Save result of the edit form.
     """
-    return redirect(url_for("password_manager.landing"))
+    if request.method == "POST":
+        return redirect(url_for("password_manager.landing"))
 
-
-@password_manager.route("/delete", methods=["GET"])
-def delete_password() -> str:
-    """
-    Basic form to confirm deletion.
-    """
     return render_template("passwords.html")
 
 
-@password_manager.route("/delete", methods=["POST"])
-def _delete_password() -> Response:
+@password_manager.route("/delete", methods=["GET", "POST"])
+def delete_password() -> ResponseReturnValue:
     """
+    Basic form to confirm deletion.
     Deletes password and redirects.
     """
-    return redirect(url_for("password_manager.landing"))
+    if request.method == "POST":
+        return redirect(url_for("password_manager.landing"))
+
+    return render_template("passwords.html")
