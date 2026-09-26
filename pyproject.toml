@@ -30,3 +30,6 @@ passlair = { git = "https://github.com/Vronst/passLair-core" }
 dev = [
     "python-dotenv>=1.2.3",
 ]
+test = [
+    "pytest>=9.1.1",
+]

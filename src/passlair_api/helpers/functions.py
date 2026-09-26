@@ -28,7 +28,16 @@ def get_create_identity() -> Identity:
         raise RuntimeError("Session is required to create identity manager.")
 
     if not (identity := cache.get(identity_id)):
+        session["init"] = True
         identity = Identity()
         cache.set(identity_id, identity)
 
     return identity
+
+
+def remove_identity() -> None:
+    if not (identity_id := cast(ServerSideSession, session).sid):
+        raise RuntimeError("Nothing to remove")
+
+    cache.delete(identity_id)
+    session.clear()

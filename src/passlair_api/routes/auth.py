@@ -1,7 +1,7 @@
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask.typing import ResponseReturnValue
 
-from ..helpers.functions import check_login_status, get_create_identity
+from ..helpers.functions import check_login_status, get_create_identity, remove_identity
 from ..helpers.wrapers import login_required
 
 auth = Blueprint("auth", __name__, template_folder="../templates", url_prefix="/auth")
@@ -31,11 +31,11 @@ def login() -> ResponseReturnValue:
     identity = get_create_identity()
     if request.method == "POST":
         data = request.form
-        username, password = data.get("username", ''), data.get("password", '')
+        username, password = data.get("username", ""), data.get("password", "")
         result = identity.login(username, password)
         if result.success:
             return redirect(url_for("password_manager.landing"))
-        # TODO: flash message about login failure
+        flash("Wrong password or username", "error")
 
     return render_template("login.html")
 
@@ -48,7 +48,7 @@ def logout() -> ResponseReturnValue:
     Log out and redirect.
     """
     if request.method == "POST":
-        session.clear()
+        remove_identity()
         return redirect(url_for("auth.login"))
 
     return render_template("logout.html")

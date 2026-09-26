@@ -16,6 +16,15 @@
                 Password
                 <input type="password" name="password" autocomplete="current-password" required>
             </label>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  <li class="flash-error">{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
             <div class="actions-row">
                 <button type="submit" class="btn-primary">Log in</button>
             </div>
