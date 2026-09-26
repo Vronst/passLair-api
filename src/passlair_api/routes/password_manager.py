@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, url_for
-from werkzeug.utils import redirect
 from flask.typing import ResponseReturnValue
-from ..helpers.functions import check_login
+from werkzeug.utils import redirect
 
+from ..helpers.functions import check_login_redirect
 
 password_manager = Blueprint(
     "password_manager",
@@ -10,7 +10,7 @@ password_manager = Blueprint(
     template_folder="../templates",
     url_prefix="/passwords",
 )
-password_manager.before_request(check_login)
+password_manager.before_request(check_login_redirect)
 
 
 @password_manager.route("/")

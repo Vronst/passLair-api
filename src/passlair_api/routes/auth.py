@@ -1,7 +1,8 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, session, url_for
 from flask.typing import ResponseReturnValue
-from ..helpers.wrapers import login_required
 
+from ..helpers.functions import check_login_status, get_create_identity
+from ..helpers.wrapers import login_required
 
 auth = Blueprint("auth", __name__, template_folder="../templates", url_prefix="/auth")
 
@@ -24,8 +25,17 @@ def login() -> ResponseReturnValue:
     Basic form.
     Log in and redirect.
     """
-    if request.method == "POST":
+    if check_login_status():
         return redirect(url_for("password_manager.landing"))
+
+    identity = get_create_identity()
+    if request.method == "POST":
+        data = request.form
+        username, password = data.get("username", ''), data.get("password", '')
+        result = identity.login(username, password)
+        if result.success:
+            return redirect(url_for("password_manager.landing"))
+        # TODO: flash message about login failure
 
     return render_template("login.html")
 
@@ -38,6 +48,7 @@ def logout() -> ResponseReturnValue:
     Log out and redirect.
     """
     if request.method == "POST":
+        session.clear()
         return redirect(url_for("auth.login"))
 
     return render_template("logout.html")
@@ -71,11 +82,7 @@ def new_password() -> ResponseReturnValue:
     After successfull authorization with backup phrases, sents user to landing page.
     Set new message with new backup phrase.
     """
-    # TODO: only acessed if reset_pasword was filled
-    if request.method == "POST":
-        # if fail
+    if request.method != "POST":
         return redirect(url_for("auth.reset_password"))
-        # if success
-        return redirect(url_for("password_manager.landing"))
 
     return render_template("new_password_for_reset.html")

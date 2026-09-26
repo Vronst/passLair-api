@@ -1,16 +1,17 @@
 import os
+
 from flask import Flask
 from flask_session import Session
 from flask_talisman import Talisman
 from redis import Redis
+
 from .config import config_mapping
 from .routes.auth import auth
-from .routes.password_manager import password_manager
 from .routes.data import data
-
+from .routes.password_manager import password_manager
 
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-REDIS_PORT = os.getenv("REDIS_PORT", 6379)
+REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
 app = Flask(__name__)
 app.config.from_mapping(config_mapping)

@@ -1,9 +1,10 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask.typing import ResponseReturnValue
-from ..helpers.functions import check_login
+
+from ..helpers.functions import check_login_redirect
 
 data = Blueprint("data", __name__, template_folder="../templates", url_prefix="/data")
-data.before_request(check_login)
+data.before_request(check_login_redirect)
 
 
 @data.route("/")

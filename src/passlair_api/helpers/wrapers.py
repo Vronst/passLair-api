@@ -1,8 +1,10 @@
-from typing import Callable, ParamSpec, TypeVar
+from collections.abc import Callable
 from functools import wraps
-from flask import redirect, session, url_for
+from typing import ParamSpec, TypeVar
+
 from werkzeug import Response
 
+from passlair_api.helpers.functions import check_login_redirect
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -11,9 +13,10 @@ R = TypeVar("R")
 def login_required(func: Callable[P, R]) -> Callable[P, R | Response]:
     @wraps(func)
     def wrapped(*args: P.args, **kwargs: P.kwargs) -> R | Response:
-        if session.get("current_user"):
-            return func(*args, **kwargs)
+        result = check_login_redirect()
+        if isinstance(result, Response):
+            return result
 
-        return redirect(url_for("auth.login"))
+        return func(*args, **kwargs)
 
     return wrapped

@@ -374,8 +374,8 @@ wheels = [
 
 [[package]]
 name = "passlair"
-version = "0.1.0"
-source = { git = "https://github.com/Vronst/passLair-core#73fc88ad025641ddfa0b36c88d91e33eb7cffd82" }
+version = "0.1.2"
+source = { git = "https://github.com/Vronst/passLair-core#cc0e799382c2d6ef3ec8b06140c9a54b9dcc0ae5" }
 dependencies = [
     { name = "mnemonic" },
     { name = "passlair-crypto" },
