@@ -1,3 +1,5 @@
+from typing import cast
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask.typing import ResponseReturnValue
 
@@ -35,6 +37,7 @@ def login() -> ResponseReturnValue:
         result = identity.login(username, password)
         if result.success:
             return redirect(url_for("password_manager.landing"))
+
         flash("Wrong password or username", "error")
 
     return render_template("login.html")
@@ -85,4 +88,48 @@ def new_password() -> ResponseReturnValue:
     if request.method != "POST":
         return redirect(url_for("auth.reset_password"))
 
+    backup_phrase = request.form.get('backup_phrase', None)
+    if not backup_phrase:
+        flash("Backup phrase cannot be read.", "error")
+        return redirect("auth.reset_password")
+
+    password, password_confirm = request.form.get("password"), request.form.get("password_confirm")
+    if password != password_confirm:
+        flash("Passwords must match", "warning")
+        return redirect("auth.reset_password")
+
+    identity = get_create_identity()
+    identity.reset_user_password(username, backup_phrase, password)
+
     return render_template("new_password_for_reset.html")
+
+
+@auth.route("/register", methods=["GET", "POST"])
+def register() -> str | ResponseReturnValue:
+    def flash_warning(message: str) -> ResponseReturnValue:
+        flash(message, "warning")
+        return redirect(url_for("auth.register"))
+
+    if request.method == "POST":
+        identity = get_create_identity()
+        data = request.form
+        username, email, password, password_confirm = (
+            data.get("username", ""),
+            data.get("email", ""),
+            data.get("password", ""),
+            data.get("password_confirm"),
+        )
+        if not all((username, email, password, password_confirm)):
+            return flash_warning("All field must be filled.")
+
+        elif password != password_confirm:
+            return flash_warning("Password and confirm password must be identical!")
+
+        result = identity.register_user(username, email, password)
+        if not result.success:
+            return flash_warning(f"{result.message}")
+
+        flash(cast(str, result.data.get("backup_phrase")), "backup_phrase")
+        return redirect(url_for("password_manager.landing"))
+
+    return render_template("register.html")

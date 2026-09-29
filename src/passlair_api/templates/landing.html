@@ -2,10 +2,10 @@
 
 {% if request.blueprint == 'password_manager' %}
     {% set page_title = "Passwords" %}
-    {% set page_description = "Save a new password, edit one you already have, or remove one you no longer need." %}
+    {% set page_description = "Look up a password, save or update one, or remove one you no longer need." %}
     {% set default_actions = [
-        ("password_manager.save_password", "Save a new password"),
-        ("password_manager.edit_password", "Edit a password"),
+        ("password_manager.retrieve_password", "Retrieve a password"),
+        ("password_manager.save_password", "Save or update a password"),
         ("password_manager.delete_password", "Delete a password"),
     ] %}
 {% elif request.blueprint == 'data' %}

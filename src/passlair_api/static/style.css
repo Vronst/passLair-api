@@ -236,6 +236,32 @@ button,
   color: var(--danger);
 }
 
+.backup-dialog {
+  max-width: 32rem;
+  width: calc(100% - 2rem);
+  color: var(--text);
+}
+
+.backup-dialog::backdrop {
+  background: rgb(0 0 0 / 0.7);
+}
+
+.backup-dialog h2 {
+  margin-top: 0;
+  color: var(--gold-400);
+}
+
+.backup-phrase {
+  background: var(--purple-950);
+  border: 1px solid var(--gold-600);
+  border-radius: var(--radius);
+  padding: 1rem;
+  font-family: ui-monospace, monospace;
+  line-height: 1.6;
+  word-spacing: 0.3em;
+  user-select: all;
+}
+
 .back-link {
   display: inline-block;
   margin-bottom: 1.5rem;

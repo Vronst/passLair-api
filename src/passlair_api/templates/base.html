@@ -14,9 +14,14 @@
             passLair
         </a>
         <nav class="site-nav">
-            <a href="{{ url_for('auth.landing') }}"{% if request.blueprint == 'auth' %} class="active"{% endif %}>Account</a>
+            <a href="{{ url_for('auth.landing') }}"{% if request.blueprint == 'auth' and request.endpoint not in ('auth.register', 'auth.logout') %} class="active"{% endif %}>Account</a>
             <a href="{{ url_for('password_manager.landing') }}"{% if request.blueprint == 'password_manager' %} class="active"{% endif %}>Passwords</a>
             <a href="{{ url_for('data.landing') }}"{% if request.blueprint == 'data' %} class="active"{% endif %}>Data</a>
+            {% if logged_in %}
+            <a href="{{ url_for('auth.logout') }}"{% if request.endpoint == 'auth.logout' %} class="active"{% endif %}>Log out</a>
+            {% else %}
+            <a href="{{ url_for('auth.register') }}"{% if request.endpoint == 'auth.register' %} class="active"{% endif %}>Register</a>
+            {% endif %}
         </nav>
     </header>
 
@@ -27,5 +32,7 @@
     <footer class="site-footer">
         passLair — your passwords, guarded.
     </footer>
+
+    {% include "_backup_phrase_dialog.html" %}
 </body>
 </html>

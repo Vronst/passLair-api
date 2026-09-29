@@ -23,23 +23,23 @@ def landing() -> str:
     return render_template("landing.html")
 
 
-@password_manager.route("/save", methods=["GET", "POST"])
-def save_password() -> ResponseReturnValue:
+@password_manager.route("/retrieve", methods=["GET", "POST"])
+def retrieve_password() -> ResponseReturnValue:
     """
-    Basic form to save service, login and password.
-    Save result of the save form.
+    Basic form asking for a service.
+    Shows decrypted login and password for that service.
     """
     if request.method == "POST":
-        return redirect(url_for("password_manager.landing"))
+        return render_template("passwords.html")
 
     return render_template("passwords.html")
 
 
-@password_manager.route("/edit", methods=["GET", "POST"])
-def edit_password() -> ResponseReturnValue:
+@password_manager.route("/save", methods=["GET", "POST"])
+def save_password() -> ResponseReturnValue:
     """
-    Form allowing to edit password details.
-    Save result of the edit form.
+    Basic form to save service, login and password.
+    Creates the entry, or overwrites it if the service already exists.
     """
     if request.method == "POST":
         return redirect(url_for("password_manager.landing"))

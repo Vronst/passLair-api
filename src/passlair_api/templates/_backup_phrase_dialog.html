@@ -1,0 +1,18 @@
+{% with backup_phrases = get_flashed_messages(category_filter=["backup_phrase"]) %}
+  {% if backup_phrases %}
+    <dialog id="backup-phrase-dialog" class="card backup-dialog" closedby="none">
+        <h2>Your backup phrase</h2>
+        <p class="field-hint">
+            This is the only way to recover your vault if you forget your password.
+            Write it down and store it somewhere safe — it will not be shown again.
+        </p>
+        <p class="backup-phrase">{{ backup_phrases[-1] }}</p>
+        <form method="dialog">
+            <div class="actions-row">
+                <button type="submit" class="btn-primary" autofocus>OK</button>
+            </div>
+        </form>
+    </dialog>
+    <script src="{{ url_for('static', filename='backup_phrase_dialog.js') }}"></script>
+  {% endif %}
+{% endwith %}

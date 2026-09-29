@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Register · passLair{% endblock %}
+
+{% block content %}
+    <h1 class="page-title">Create an account</h1>
+    <p class="page-description">Set up your vault.</p>
+
+    <div class="card">
+        <form method="post" action="">
+            <label>
+                Username
+                <input type="text" name="username" autocomplete="username" required>
+            </label>
+            <label>
+                Email
+                <input type="email" name="email" autocomplete="email" required>
+            </label>
+            <label>
+                Password
+                <input type="password" name="password" autocomplete="new-password" required>
+            </label>
+            <label>
+                Confirm password
+                <input type="password" name="password_confirm" autocomplete="new-password" required>
+            </label>
+
+            {% with messages = get_flashed_messages(category_filter=["warning"]) %}
+              {% if messages %}
+                <ul class="flashes">
+                {% for message in messages %}
+                  <li class="flash-error">{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+
+            <div class="actions-row">
+                <button type="submit" class="btn-primary">Create account</button>
+            </div>
+        </form>
+        <a class="field-hint" href="{{ url_for('auth.login') }}">Already have an account? Log in</a>
+    </div>
+{% endblock %}
