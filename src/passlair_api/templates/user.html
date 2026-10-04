@@ -5,29 +5,28 @@
 {% block content %}
     <a class="back-link" href="{{ url_for('auth.landing') }}">&larr; Account</a>
     <h1 class="page-title">Your information</h1>
-    <p class="page-description">Update your account details below.</p>
+    <p class="page-description">Change your password below.</p>
 
     <div class="card">
+        <p class="field-hint">
+            Username: <strong>{{ username }}</strong><br>
+            It can't be changed. You'll need it, together with your backup phrase, to recover your account.
+        </p>
         <form method="post" action="">
             <label>
-                Username
-                <input type="text" name="username" value="{{ user.username if user else '' }}" autocomplete="username" required>
-            </label>
-            <label>
-                Email
-                <input type="email" name="email" value="{{ user.email if user else '' }}" autocomplete="email" required>
+                Current password
+                <input type="password" name="current_password" autocomplete="current-password" required>
             </label>
             <label>
                 New password
-                <input type="password" name="password" autocomplete="new-password">
-                <span class="field-hint">Leave blank to keep your current password.</span>
+                <input type="password" name="password" autocomplete="new-password" required>
             </label>
             <label>
                 Confirm new password
-                <input type="password" name="password_confirm" autocomplete="new-password">
+                <input type="password" name="password_confirm" autocomplete="new-password" required>
             </label>
             <div class="actions-row">
-                <button type="submit" class="btn-primary">Save changes</button>
+                <button type="submit" class="btn-primary">Change password</button>
             </div>
         </form>
     </div>

@@ -2,8 +2,13 @@ from typing import cast
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask.typing import ResponseReturnValue
+from passlair.core import Identity
 
-from ..helpers.functions import check_login_status, get_create_identity, remove_identity
+from ..helpers.functions import (
+    check_login_status,
+    remove_identity,
+    save_identity,
+)
 from ..helpers.wrapers import login_required
 
 auth = Blueprint("auth", __name__, template_folder="../templates", url_prefix="/auth")
@@ -30,12 +35,13 @@ def login() -> ResponseReturnValue:
     if check_login_status():
         return redirect(url_for("password_manager.landing"))
 
-    identity = get_create_identity()
     if request.method == "POST":
+        identity = Identity()
         data = request.form
         username, password = data.get("username", ""), data.get("password", "")
         result = identity.login(username, password)
         if result.success:
+            save_identity(identity)
             session["username"] = username
             return redirect(url_for("password_manager.landing"))
 
@@ -62,13 +68,14 @@ def logout() -> ResponseReturnValue:
 @login_required
 def user() -> ResponseReturnValue:
     """
-    Form to edit all user fields.
+    Form to change password. Username is fixed after registration.
     Save edit form changes and redirect.
     """
+    username = session.get("username")
     if request.method == "POST":
-        return render_template("user.html")
+        return render_template("user.html", username=username)
 
-    return render_template("user.html")
+    return render_template("user.html", username=username)
 
 
 @auth.route("/reset_password", methods=["GET"])
@@ -113,7 +120,7 @@ def new_password() -> ResponseReturnValue:
     if not username:
         return flash_and_redirect("Username must be non empty", "warning")
 
-    identity = get_create_identity()
+    identity = Identity()
     result = identity.reset_user_password(username, backup_phrase, password)
 
     if result.success:
@@ -136,25 +143,26 @@ def register() -> str | ResponseReturnValue:
         return redirect(url_for("auth.register"))
 
     if request.method == "POST":
-        identity = get_create_identity()
+        identity = Identity()
         data = request.form
-        username, email, password, password_confirm = (
+        username, password, password_confirm = (
             data.get("username", ""),
-            data.get("email", ""),
             data.get("password", ""),
             data.get("password_confirm"),
         )
-        if not all((username, email, password, password_confirm)):
+        if not all((username, password, password_confirm)):
             return flash_warning("All field must be filled.")
 
         elif password != password_confirm:
             return flash_warning("Password and confirm password must be identical!")
 
-        result = identity.register_user(username, email, password)
+        result = identity.register_user(username, password)
         if not result.success:
             return flash_warning(f"{result.message}")
 
         flash(cast(str, result.data.get("backup_phrase")), "backup_phrase")
+        save_identity(identity)
+        session["username"] = username
         return redirect(url_for("password_manager.landing"))
 
     return render_template("register.html")

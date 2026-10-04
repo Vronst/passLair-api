@@ -1,22 +1,15 @@
 """Tests for the single-form password reset (POST /auth/reset_password/new_password).
 
-Like test_login_required.py, this builds a throwaway Flask app instead of
-importing passlair_api.app, which wires up Redis and a database at import
-time. Core is replaced by a fake identity, so these tests only cover what
-the route does with the form and with core's result.
+Core is replaced by a fake identity, so these tests only cover what the
+route does with the form and with core's result.
 """
 
 import pytest
-from cachelib import SimpleCache
-from flask import Flask
 from flask.testing import FlaskClient
-from flask_session import Session
 from passlair.dataclasses.facade_result import FacadeResult
 
 from passlair_api.routes import auth as auth_routes
-from passlair_api.routes.auth import auth
-from passlair_api.routes.data import data
-from passlair_api.routes.password_manager import password_manager
+from tests.support import build_app
 
 RESET_URL = "/auth/reset_password/new_password"
 
@@ -56,21 +49,8 @@ def failure(message: str) -> FacadeResult:
 
 
 def make_client(monkeypatch: pytest.MonkeyPatch, identity: FakeIdentity) -> FlaskClient:
-    app = Flask(__name__)
-    app.config.update(
-        SECRET_KEY="test",
-        SESSION_TYPE="cachelib",
-        SESSION_CACHELIB=SimpleCache(),
-        TESTING=True,
-    )
-    Session(app)
-    # Real blueprints, because base.html links to all of them.
-    app.register_blueprint(auth)
-    app.register_blueprint(password_manager)
-    app.register_blueprint(data)
-
-    monkeypatch.setattr(auth_routes, "get_create_identity", lambda: identity)
-    return app.test_client()
+    monkeypatch.setattr(auth_routes, "Identity", lambda *_, **__: identity)
+    return build_app().test_client()
 
 
 def post_reset(client: FlaskClient, form: dict[str, str]) -> str:
@@ -97,6 +77,20 @@ def test_successful_reset_shows_new_backup_phrase(
 
     assert 'id="backup-phrase-dialog"' in body
     assert NEW_PHRASE in body
+
+
+def test_new_backup_phrase_never_appears_in_a_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # URLs end up in browser history, access logs and Referer headers.
+    client = make_client(monkeypatch, FakeIdentity(success()))
+
+    response = client.post(RESET_URL, data=VALID_FORM, follow_redirects=True)
+
+    urls = [r.headers.get("Location", "") for r in response.history]
+    urls.append(response.request.url)
+    for url in urls:
+        assert NEW_PHRASE.split()[0] not in url
 
 
 @pytest.mark.parametrize(

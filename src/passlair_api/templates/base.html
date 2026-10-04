@@ -14,12 +14,13 @@
             passLair
         </a>
         <nav class="site-nav">
-            <a href="{{ url_for('auth.landing') }}"{% if request.blueprint == 'auth' and request.endpoint not in ('auth.register', 'auth.logout') %} class="active"{% endif %}>Account</a>
+            <a href="{{ url_for('auth.landing') }}"{% if request.endpoint in ('auth.landing', 'auth.user') %} class="active"{% endif %}>Account</a>
             <a href="{{ url_for('password_manager.landing') }}"{% if request.blueprint == 'password_manager' %} class="active"{% endif %}>Passwords</a>
             <a href="{{ url_for('data.landing') }}"{% if request.blueprint == 'data' %} class="active"{% endif %}>Data</a>
             {% if logged_in %}
             <a href="{{ url_for('auth.logout') }}"{% if request.endpoint == 'auth.logout' %} class="active"{% endif %}>Log out</a>
             {% else %}
+            <a href="{{ url_for('auth.login') }}"{% if request.endpoint == 'auth.login' %} class="active"{% endif %}>Log in</a>
             <a href="{{ url_for('auth.register') }}"{% if request.endpoint == 'auth.register' %} class="active"{% endif %}>Register</a>
             {% endif %}
         </nav>
