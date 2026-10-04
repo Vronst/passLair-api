@@ -1,6 +1,6 @@
 from typing import cast
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask.typing import ResponseReturnValue
 
 from ..helpers.functions import check_login_status, get_create_identity, remove_identity
@@ -36,6 +36,7 @@ def login() -> ResponseReturnValue:
         username, password = data.get("username", ""), data.get("password", "")
         result = identity.login(username, password)
         if result.success:
+            session["username"] = username
             return redirect(url_for("password_manager.landing"))
 
         flash("Wrong password or username", "error")
@@ -71,9 +72,10 @@ def user() -> ResponseReturnValue:
 
 
 @auth.route("/reset_password", methods=["GET"])
-def reset_password() -> str:
+def reset_password() -> ResponseReturnValue:
     """
-    Form for backup phrases that allows for password change.
+    Form for username, backup phrase and new password.
+    Submits to new_password, which performs the reset.
     """
     return render_template("reset_password.html")
 
@@ -81,27 +83,50 @@ def reset_password() -> str:
 @auth.route("/reset_password/new_password", methods=["GET", "POST"])
 def new_password() -> ResponseReturnValue:
     """
-    Allows to set new password.
-    After successfull authorization with backup phrases, sents user to landing page.
-    Set new message with new backup phrase.
+    Handles the reset form.
+    Validates the fields, resets the password using the backup phrase,
+    and flashes the newly rotated backup phrase.
+    Any failure, and a plain GET, redirects back to the reset form.
     """
-    if request.method != "POST":
+
+    def flash_and_redirect(message: str, type_: str = "error") -> ResponseReturnValue:
+        flash(message, type_)
         return redirect(url_for("auth.reset_password"))
 
-    backup_phrase = request.form.get('backup_phrase', None)
-    if not backup_phrase:
-        flash("Backup phrase cannot be read.", "error")
-        return redirect("auth.reset_password")
+    if request.method != "POST":
+        return flash_and_redirect("No backup phrase provided", "warning")
 
-    password, password_confirm = request.form.get("password"), request.form.get("password_confirm")
-    if password != password_confirm:
-        flash("Passwords must match", "warning")
-        return redirect("auth.reset_password")
+    backup_phrase = request.form.get("backup_phrase", None)
+    if not backup_phrase:
+        return flash_and_redirect("Backup phrase cannot be read.")
+
+    password, password_confirm = (
+        request.form.get("password"),
+        request.form.get("password_confirm"),
+    )
+    if not password or password != password_confirm:
+        return flash_and_redirect(
+            "Passwords must match, and must not be empty", "warning"
+        )
+
+    username = request.form.get("username")
+    if not username:
+        return flash_and_redirect("Username must be non empty", "warning")
 
     identity = get_create_identity()
-    identity.reset_user_password(username, backup_phrase, password)
+    result = identity.reset_user_password(username, backup_phrase, password)
 
-    return render_template("new_password_for_reset.html")
+    if result.success:
+        _ = flash_and_redirect(
+            "Password successfully changed.",
+            "info",
+        )
+        assert result.data
+        return flash_and_redirect(
+            cast(str, result.data.get("backup_phrase")), "backup_phrase"
+        )
+
+    return flash_and_redirect("Username or backup phrase incorrect.", "error")
 
 
 @auth.route("/register", methods=["GET", "POST"])

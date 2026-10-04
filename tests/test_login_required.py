@@ -6,6 +6,7 @@ time. The session backend here is cachelib's in-memory SimpleCache, so
 these tests need no external services.
 """
 
+import pytest
 from cachelib import SimpleCache
 from flask import Blueprint, Flask
 from flask_session import Session
@@ -60,26 +61,29 @@ def test_login_required_blocks_anonymous_request() -> None:
     assert response.headers["Location"] == "/login"
 
 
-def test_login_required_allows_logged_in_user() -> None:
+def test_login_required_allows_logged_in_user(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     app = make_app()
     client = app.test_client()
 
     # Establishing the session is what assigns it a sid. NOTE: a session
     # containing only Flask-Session's internal "_permanent" key is treated
     # as empty (see ServerSideSession.__bool__ in flask_session/base.py) and
-    # never gets cookie'd to the client, so the sid would never actually
-    # survive to the next request. Writing a real key here stands in for a
-    # fix that belongs in the app itself (functions.py currently never
-    # writes anything into flask.session, only into the separate identity
-    # cache) - without it, this scenario can't happen in the real app at all.
+    # never gets cookie'd to the client, so the sid would never survive to
+    # the next request. Writing a real key here mirrors what
+    # get_create_identity() does with session["init"].
     with client.session_transaction() as sess:
         sess["_test_marker"] = True
         sid = sess.sid
 
-    # login_required's check reads identity_functions.cache directly, so
-    # planting a "logged in" identity there is what a real login() call
-    # would have done via get_create_identity().
-    identity_functions.cache.set(sid, FakeIdentity(success=True))
+    # login_required's check reads identity_functions.user_manager directly,
+    # so planting a "logged in" identity there is what a real login() call
+    # would have done via get_create_identity(). setitem undoes it after the
+    # test, since the dict is module-global and shared across tests.
+    monkeypatch.setitem(
+        identity_functions.user_manager, sid, FakeIdentity(success=True)
+    )
 
     response = client.get("/protected")
 
@@ -87,7 +91,9 @@ def test_login_required_allows_logged_in_user() -> None:
     assert response.data == b"secret"
 
 
-def test_login_required_blocks_user_with_failed_login() -> None:
+def test_login_required_blocks_user_with_failed_login(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     app = make_app()
     client = app.test_client()
 
@@ -95,7 +101,9 @@ def test_login_required_blocks_user_with_failed_login() -> None:
         sess["_test_marker"] = True
         sid = sess.sid
 
-    identity_functions.cache.set(sid, FakeIdentity(success=False))
+    monkeypatch.setitem(
+        identity_functions.user_manager, sid, FakeIdentity(success=False)
+    )
 
     response = client.get("/protected")
 
