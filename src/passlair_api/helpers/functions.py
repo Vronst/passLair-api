@@ -1,6 +1,6 @@
 from typing import cast
 
-from flask import redirect, session, url_for
+from flask import flash, redirect, session, url_for
 from flask_session.base import ServerSideSession
 from passlair.core import Identity
 from werkzeug import Response
@@ -11,6 +11,13 @@ user_manager: dict[str, Identity] = {}
 def check_login_redirect() -> Response | None:
     if not check_login_status():
         return redirect(url_for("auth.login"))
+
+
+def flash_and_redirect(
+    endpoint: str, message: str, category: str = "error"
+) -> Response:
+    flash(message, category)
+    return redirect(url_for(endpoint))
 
 
 def check_login_status() -> bool:

@@ -6,6 +6,8 @@ from passlair.core import Identity
 
 from ..helpers.functions import (
     check_login_status,
+    flash_and_redirect,
+    get_create_identity,
     remove_identity,
     save_identity,
 )
@@ -22,7 +24,7 @@ def landing() -> str:
     Delete account.
     """
     return render_template(
-        "landing.html", links=[{"url": "data.landing", "label": "data label"}]
+        "landing.html", links=[{"url": "data.landing", "label": "Export/Import"}]
     )
 
 
@@ -71,11 +73,35 @@ def user() -> ResponseReturnValue:
     Form to change password. Username is fixed after registration.
     Save edit form changes and redirect.
     """
-    username = session.get("username")
-    if request.method == "POST":
+    if request.method == "GET":
+        username = session.get("username")
         return render_template("user.html", username=username)
 
-    return render_template("user.html", username=username)
+    identity = get_create_identity()
+    form = request.form
+    current_password, new_password, confirm_password = (
+        form.get("current_password"),
+        form.get("password"),
+        form.get("password_confirm"),
+    )
+    if not all([current_password, new_password, confirm_password]):
+        return flash_and_redirect(
+            "auth.user", "Required fields are missing.", "warning"
+        )
+
+    if new_password != confirm_password:
+        return flash_and_redirect("auth.user", "New passwords do not match", "warning")
+
+    assert current_password and new_password
+    result = identity.change_user_password(new_password, current_password)
+
+    if not result.success:
+        return flash_and_redirect("auth.user", result.message, "warning")
+
+    flash(cast(str, result.data.get("backup_phrase")), "backup_phrase")
+    return flash_and_redirect(
+        "password_manager.landing", "Password changed successfully.", "info"
+    )
 
 
 @auth.route("/reset_password", methods=["GET"])
