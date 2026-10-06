@@ -30,6 +30,16 @@
     <h1 class="page-title">{{ page_title }}</h1>
     <p class="page-description">{{ page_description }}</p>
 
+    {% with infos = get_flashed_messages(category_filter=["info"]) %}
+      {% if infos %}
+        <ul class="flashes">
+        {% for message in infos %}
+          <li class="flash-info">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
     <ul class="action-list">
         {% for endpoint, label in default_actions %}
         <li><a href="{{ url_for(endpoint) }}">{{ label }}</a></li>

@@ -402,7 +402,7 @@ wheels = [
 [[package]]
 name = "passlair"
 version = "0.2.0"
-source = { git = "https://github.com/Vronst/passLair-core#e7edb790a07685de6787453d23d736b595c2373e" }
+source = { git = "https://github.com/Vronst/passLair-core?branch=main#5ccc777785040a10d90d51e1ab18a8255c7b7084" }
 dependencies = [
     { name = "mnemonic" },
     { name = "passlair-crypto" },
@@ -439,7 +439,7 @@ requires-dist = [
     { name = "flask-session", extras = ["redis"], specifier = ">=0.8.0" },
     { name = "flask-talisman", specifier = ">=1.1.0" },
     { name = "jinja2", specifier = ">=3.1.6" },
-    { name = "passlair", git = "https://github.com/Vronst/passLair-core" },
+    { name = "passlair", git = "https://github.com/Vronst/passLair-core?branch=main" },
     { name = "redis", extras = ["hiredis"], specifier = ">=8.1.0" },
 ]
 

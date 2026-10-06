@@ -24,7 +24,7 @@ requires = ["uv_build>=0.11.14,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.uv.sources]
-passlair = { git = "https://github.com/Vronst/passLair-core" }
+passlair = { git = "https://github.com/Vronst/passLair-core", branch='main' }
 
 [dependency-groups]
 dev = [
