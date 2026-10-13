@@ -13,6 +13,7 @@
             It can't be changed. You'll need it, together with your backup phrase, to recover your account.
         </p>
         <form method="post" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <label>
                 Current password
                 <input type="password" name="current_password" autocomplete="current-password" required>

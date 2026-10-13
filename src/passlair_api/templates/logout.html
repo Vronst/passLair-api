@@ -8,6 +8,7 @@
 
     <div class="card">
         <form method="post" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="actions-row">
                 <button type="submit" class="btn-primary">Log out</button>
                 <a class="btn btn-secondary" href="{{ url_for('auth.landing') }}">Cancel</a>

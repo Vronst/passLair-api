@@ -4,6 +4,8 @@ Core is replaced by a fake identity, so these tests only cover what the
 route does with the form and with core's result.
 """
 
+import re
+
 import pytest
 from flask.testing import FlaskClient
 from passlair.dataclasses.facade_result import FacadeResult
@@ -12,6 +14,7 @@ from passlair_api.routes import auth as auth_routes
 from tests.support import build_app
 
 RESET_URL = "/auth/reset_password/new_password"
+CSRF_VALUE = re.compile(r'name="csrf_token" value="[^"]*"')
 
 USERNAME = "alice"
 PHRASE = "old backup phrase words"
@@ -140,4 +143,9 @@ def test_unknown_user_and_wrong_phrase_look_identical(
         VALID_FORM,
     )
 
-    assert unknown_user == wrong_phrase
+    # The CSRF token is random per session, so it's the one part allowed to differ.
+    assert without_csrf_token(unknown_user) == without_csrf_token(wrong_phrase)
+
+
+def without_csrf_token(body: str) -> str:
+    return CSRF_VALUE.sub('name="csrf_token" value=""', body)

@@ -2,11 +2,11 @@ from typing import cast
 
 from flask import flash, redirect, session, url_for
 from flask_session.base import ServerSideSession
+from passlair import Exporter, Importer
 from passlair.core import Identity, PasswordManager
 from werkzeug import Response
 
 user_manager: dict[str, Identity] = {}
-password_manager: dict[str, PasswordManager] = {}
 
 
 def check_login_redirect() -> Response | None:
@@ -58,14 +58,16 @@ def remove_identity() -> None:
         raise RuntimeError("Nothing to remove")
 
     del user_manager[identity_id]
-    password_manager.pop(identity_id, None)
     session.clear()
 
 
-def get_create_password_manager() -> PasswordManager:
-    manager_id = _get_session_sid()
-    if not (manager := password_manager.get(manager_id)):
-        manager = PasswordManager(get_create_identity().manager)
-        password_manager[manager_id] = manager
+def get_password_manager() -> PasswordManager:
+    return PasswordManager(get_create_identity().manager)
 
-    return manager
+
+def get_importer() -> Importer:
+    return Importer(get_create_identity().manager)
+
+
+def get_exporter() -> Exporter:
+    return Exporter(get_create_identity().manager)

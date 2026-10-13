@@ -1,10 +1,32 @@
-from flask import Blueprint, redirect, render_template, request, url_for
-from flask.typing import ResponseReturnValue
+import io
 
-from ..helpers.functions import check_login_redirect
+from flask import Blueprint, redirect, render_template, request, send_file, url_for
+from flask.typing import ResponseReturnValue
+from passlair.core.readers.helpers import compare_passwords
+from werkzeug.exceptions import RequestEntityTooLarge
+
+from ..helpers.functions import (
+    check_login_redirect,
+    flash_and_redirect,
+    get_create_identity,
+    get_exporter,
+    get_importer,
+)
+from ..helpers.uploads import MAX_UPLOAD_BYTES
 
 data = Blueprint("data", __name__, template_folder="../templates", url_prefix="/data")
 data.before_request(check_login_redirect)
+
+
+@data.errorhandler(RequestEntityTooLarge)
+def upload_too_large(_: RequestEntityTooLarge) -> ResponseReturnValue:
+    """Over MAX_UPLOAD_BYTES (helpers/uploads.py): back to the form, not a bare 413."""
+    limit_mib = MAX_UPLOAD_BYTES // (1024 * 1024)
+    return flash_and_redirect(
+        "data.import_passwords",
+        f"The export is too large (limit {limit_mib} MiB).",
+        "warning",
+    )
 
 
 @data.route("/")
@@ -23,7 +45,17 @@ def export_passwords() -> ResponseReturnValue:
     Exports passwords (file download) and redirects.
     """
     if request.method == "POST":
-        return redirect(url_for("data.landing"))
+        if not compare_passwords(
+            (get_create_identity().manager.user_id or ""),
+            request.form.get("password", ""),
+        ) or not (format := request.form.get("format")):
+            return flash_and_redirect(
+                "password_manager.landing", "Wrong password", "warning"
+            )
+        exporter = get_exporter()
+        passwords = exporter.serialize(format)
+        file_like = io.BytesIO(passwords.encode("utf-8"))
+        return send_file(file_like, download_name=f"password_export.{format}", as_attachment=True)
 
     return render_template("export.html")
 
@@ -31,10 +63,37 @@ def export_passwords() -> ResponseReturnValue:
 @data.route("/import", methods=["GET", "POST"])
 def import_passwords() -> ResponseReturnValue:
     """
-    User sends or paste the password exoprt file/string.
-    Imports and redirects
+    User uploads or pastes a password export and picks its format.
+    Imports and redirects; read in memory, never written to disk by us.
     """
     if request.method == "POST":
-        return redirect(url_for("data.landing"))
+        fmt = request.form.get("format", "")
+        # An empty file part (no file chosen) is falsy, so the textarea wins.
+        upload = request.files.get("import_file")
+        raw: bytes | str = (
+            upload.read() if upload else request.form.get("import_text", "")
+        )
+        if not raw:
+            return flash_and_redirect(
+                "data.import_passwords", "No data to import.", "warning"
+            )
+
+        try:
+            content = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+            result = get_importer().import_text(content, fmt)
+        # UnicodeDecodeError subclasses ValueError, so it must come first.
+        except UnicodeDecodeError:
+            return flash_and_redirect(
+                "data.import_passwords", "The file must be UTF-8 text.", "warning"
+            )
+        # Unknown format, or core's ImportFormatError -- both user-safe messages.
+        except ValueError as err:
+            return flash_and_redirect("data.import_passwords", str(err), "warning")
+
+        return flash_and_redirect(
+            "data.landing",
+            f"Imported {result.imported} entries, skipped {result.skipped}.",
+            "info",
+        )
 
     return render_template("import.html")

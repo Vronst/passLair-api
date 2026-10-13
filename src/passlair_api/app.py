@@ -4,11 +4,13 @@ from pathlib import Path
 from flask import Flask
 from flask_session import Session
 from flask_talisman import Talisman
+from flask_wtf.csrf import CSRFProtect
 from passlair.core.database import db
 from redis import Redis
 
 from .config import config_mapping
 from .helpers.functions import check_login_status
+from .helpers.uploads import apply_upload_limits
 from .routes.auth import auth
 from .routes.data import data
 from .routes.password_manager import password_manager
@@ -29,12 +31,14 @@ app.config.from_mapping(config_mapping)
 app.config.update(
     {"SESSION_TYPE": "redis", "SESSION_REDIS": Redis(host=REDIS_HOST, port=6379)}
 )
+apply_upload_limits(app)
 app.register_blueprint(auth)
 app.register_blueprint(password_manager)
 app.register_blueprint(data)
 
 Session(app)
 Talisman(app)
+CSRFProtect(app)
 
 
 @app.context_processor

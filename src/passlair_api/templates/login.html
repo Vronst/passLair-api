@@ -8,6 +8,7 @@
 
     <div class="card">
         <form method="post" action="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <label>
                 Username
                 <input type="text" name="username" autocomplete="username" required>

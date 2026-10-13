@@ -7,24 +7,33 @@ database at import time, so tests build a throwaway app instead.
 from cachelib import SimpleCache
 from flask import Flask
 from flask_session import Session
+from flask_wtf.csrf import CSRFProtect
 from passlair.dataclasses.facade_result import FacadeResult
 
+from passlair_api.helpers.uploads import apply_upload_limits
 from passlair_api.routes.auth import auth
 from passlair_api.routes.data import data
 from passlair_api.routes.password_manager import password_manager
 
 
-def build_app() -> Flask:
+def build_app(csrf: bool = False) -> Flask:
     """App with the real blueprints (base.html links to all of them) and an
-    in-memory session backend."""
+    in-memory session backend.
+
+    CSRFProtect is always installed, since templates call csrf_token(); its
+    check is off by default so tests can post forms without scraping a token.
+    """
     app = Flask(__name__)
     app.config.update(
         SECRET_KEY="test",
         SESSION_TYPE="cachelib",
         SESSION_CACHELIB=SimpleCache(),
         TESTING=True,
+        WTF_CSRF_ENABLED=csrf,
     )
+    apply_upload_limits(app)
     Session(app)
+    _ = CSRFProtect(app)
     app.register_blueprint(auth)
     app.register_blueprint(password_manager)
     app.register_blueprint(data)
