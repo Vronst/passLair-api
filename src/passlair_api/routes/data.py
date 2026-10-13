@@ -1,6 +1,6 @@
 import io
 
-from flask import Blueprint, redirect, render_template, request, send_file, url_for
+from flask import Blueprint, render_template, request, send_file
 from flask.typing import ResponseReturnValue
 from passlair.core.readers.helpers import compare_passwords
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -55,7 +55,9 @@ def export_passwords() -> ResponseReturnValue:
         exporter = get_exporter()
         passwords = exporter.serialize(format)
         file_like = io.BytesIO(passwords.encode("utf-8"))
-        return send_file(file_like, download_name=f"password_export.{format}", as_attachment=True)
+        return send_file(
+            file_like, download_name=f"password_export.{format}", as_attachment=True
+        )
 
     return render_template("export.html")
 
