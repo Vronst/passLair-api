@@ -14,7 +14,7 @@ COPY pyproject.toml ./
 
 COPY uv.lock ./
 
-ENV SECRET_KEY="YouToughtIWouldPushItXD?" DATABASE="sqlite" DEK=""
+ENV SECRET_KEY="YouToughtIWouldPushItXD?" DATABASE="sqlite" DEK="" REDIS_HOST="redis"
 
 COPY . .
 
