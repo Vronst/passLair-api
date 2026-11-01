@@ -26,13 +26,17 @@ jobs:
     if: github.ref_type != 'tag'
     uses: Vronst/workflows/.github/workflows/test.yml@custom
     with:
-      runner_type: "local"
+      runner_type: "podman"
       test_command: "uv run --group test pytest && cargo test"
       setup_command: |
-        pip install uv
-        uv sync
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        mkdir -p ./secrets
+        echo "${{ secrets.APP_DEK }}" > ./secrets/dek.key
+        chmod 600 ./secrets/dek.key
+
+      # pip install uv
+      # uv sync
+      # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      # echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
   auto-pr-generation:
     needs: [linting, testing]
