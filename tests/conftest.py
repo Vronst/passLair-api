@@ -1,16 +1,18 @@
 import pytest
 from flask.testing import FlaskClient
+from pymemcache.test.utils import MockMemcacheClient
 
+# Create a fully functional in-memory mock memcached client
 from passlair_api.helpers import functions as identity_functions
 from passlair_api.routes import auth as auth_routes
 from tests.support import FakeCoreIdentity, build_app
 
 
 @pytest.fixture(autouse=True)
-def user_manager(monkeypatch: pytest.MonkeyPatch) -> dict[str, object]:
+def user_manager(monkeypatch: pytest.MonkeyPatch) -> MockMemcacheClient:
     """Fresh identity store per test, since the real one is module-global."""
-    store: dict[str, object] = {}
-    monkeypatch.setattr(identity_functions, "user_manager", store)
+    store = MockMemcacheClient()
+    monkeypatch.setattr(identity_functions, "cache", store)
     return store
 
 

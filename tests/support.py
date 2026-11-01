@@ -4,6 +4,8 @@ passlair_api.app isn't imported in tests because it wires up Redis and a
 database at import time, so tests build a throwaway app instead.
 """
 
+from unittest.mock import Mock
+
 from cachelib import SimpleCache
 from flask import Flask
 from flask_session import Session
@@ -50,6 +52,12 @@ class FakeCoreIdentity:
         self._logged_in = False
 
     @property
+    def manager(self) -> object:
+        manager = Mock(user_id="Alice")
+        manager.get_session_key = Mock(return_value=b"1234567890")
+        return manager
+
+    @property
     def login_status(self) -> FacadeResult:
         return FacadeResult(success=self._logged_in, message="", data={})
 
@@ -66,3 +74,9 @@ class FakeCoreIdentity:
         self, username: str, backup_phrase: str, new_password: str
     ) -> FacadeResult:
         return FacadeResult(success=False, message="Decryption failed.", data={})
+
+    def restore_session(self, user_id, dek) -> FacadeResult:
+        self._logged_in = True
+        return FacadeResult(
+            success=True, message="Loged by DEK for user alice. BE CAREFUL", data={}
+        )

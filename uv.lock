@@ -255,6 +255,15 @@ wheels = [
 ]
 
 [[package]]
+name = "gunicorn"
+version = "26.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/8a/e4ef6ee11701b6cd64702848415ffb69eeff85cb388a3c6c7fe86f22f3f8/gunicorn-26.2.0.tar.gz", hash = "sha256:62b864895d9ebff0b2f9867ba04fe811c93121596540830c9c916d0769668447", size = 787921, upload-time = "2026-08-24T15:05:59.3Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fe/85/7522a52e5e2f42faf1a129113ab63e548c42e103e9af395b7bfe65e403e2/gunicorn-26.2.0-py3-none-any.whl", hash = "sha256:bd249d0b3f7972f7432f0a6b6ff3b3ee2d129f70cd1ff6c09a9dd9e29a2b88e3", size = 228389, upload-time = "2026-08-24T15:05:57.67Z" },
+]
+
+[[package]]
 name = "hiredis"
 version = "3.4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -415,8 +424,8 @@ wheels = [
 
 [[package]]
 name = "passlair"
-version = "0.3.0"
-source = { git = "https://github.com/Vronst/passLair-core?branch=main#6c5af4dd73f694bf323434855a95e41775a8a50c" }
+version = "0.4.0"
+source = { git = "https://github.com/Vronst/passLair-core?branch=main#6e9df188051c655c370082db193efbd539e923b2" }
 dependencies = [
     { name = "mnemonic" },
     { name = "passlair-crypto" },
@@ -435,8 +444,10 @@ dependencies = [
     { name = "flask-session", extra = ["redis"] },
     { name = "flask-talisman" },
     { name = "flask-wtf" },
+    { name = "gunicorn" },
     { name = "jinja2" },
     { name = "passlair" },
+    { name = "pymemcache" },
     { name = "redis", extra = ["hiredis"] },
 ]
 
@@ -454,8 +465,10 @@ requires-dist = [
     { name = "flask-session", extras = ["redis"], specifier = ">=0.8.0" },
     { name = "flask-talisman", specifier = ">=1.1.0" },
     { name = "flask-wtf", specifier = ">=1.3.0" },
+    { name = "gunicorn", specifier = ">=26.2.0" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "passlair", git = "https://github.com/Vronst/passLair-core?branch=main" },
+    { name = "pymemcache", specifier = ">=4.0.0" },
     { name = "redis", extras = ["hiredis"], specifier = ">=8.1.0" },
 ]
 
@@ -552,6 +565,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz", hash = "sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c", size = 5005329, upload-time = "2026-08-17T08:02:48.824Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl", hash = "sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9", size = 1250147, upload-time = "2026-08-17T08:02:44.912Z" },
+]
+
+[[package]]
+name = "pymemcache"
+version = "4.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/b6/4541b664aeaad025dfb8e851dcddf8e25ab22607e674dd2b562ea3e3586f/pymemcache-4.0.0.tar.gz", hash = "sha256:27bf9bd1bbc1e20f83633208620d56de50f14185055e49504f4f5e94e94aff94", size = 70176, upload-time = "2022-10-17T16:53:07.726Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/41/ba/2f7b22d8135b51c4fefb041461f8431e1908778e6539ff5af6eeaaee367a/pymemcache-4.0.0-py2.py3-none-any.whl", hash = "sha256:f507bc20e0dc8d562f8df9d872107a278df049fa496805c1431b926f3ddd0eab", size = 60772, upload-time = "2022-10-17T16:53:04.388Z" },
 ]
 
 [[package]]
