@@ -2,11 +2,12 @@ from typing import cast
 
 from flask import Blueprint, flash, render_template, request
 from flask.typing import ResponseReturnValue
+from passlair.core import PasswordManager
 
 from ..helpers.functions import (
     check_login_redirect,
     flash_and_redirect,
-    get_password_manager,
+    get_create_identity,
 )
 
 password_manager = Blueprint(
@@ -40,7 +41,7 @@ def retrieve_password() -> ResponseReturnValue:
             flash("Service must not be empty", "warning")
             return render_template("passwords.html")
 
-        manager = get_password_manager()
+        manager = PasswordManager(get_create_identity().manager)
         result = manager.get_password_for_service(service)
         if not result.success:
             flash(result.message, "warning")
@@ -66,7 +67,7 @@ def save_password() -> ResponseReturnValue:
             flash("All fields must be filled", "warning")
             return render_template("passwords.html")
 
-        manager = get_password_manager()
+        manager = PasswordManager(get_create_identity().manager)
         result = manager.set_password_for_service(service, login, password)
 
         if not result.success:
@@ -90,7 +91,7 @@ def delete_password() -> ResponseReturnValue:
                 "password_manager.landing", "Service not found", "info"
             )
 
-        manager = get_password_manager()
+        manager = PasswordManager(get_create_identity().manager)
         result = manager.delete_password(service)
         flash_and_redirect("password_manager.landing", result.message, "info")
 

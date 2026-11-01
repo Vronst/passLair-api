@@ -7,6 +7,7 @@ from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
 from passlair.core.database import db
 from redis import Redis
+from sqlalchemy.exc import OperationalError
 
 from .config import config_mapping
 from .helpers.functions import check_login_status
@@ -21,7 +22,7 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 DATABASE = os.getenv("DATABASE", "sqlite")
 
 SQLITE_PATH = os.getenv(
-    "SQLITE_PATH", str(Path(__file__).resolve().parent) + "passlair_api.db"
+    "SQLITE_PATH", str(Path(__file__).resolve().parent) + "/passlair_api.db"
 )
 MARIA_DB = os.getenv("MARIA_DB", None)
 
@@ -46,18 +47,28 @@ def inject_auth_state() -> dict[str, bool]:
     return {"logged_in": check_login_status()}
 
 
-match DATABASE:
-    case "sqlite":
-        db.init_sqlite(SQLITE_PATH)
+try:
+    match DATABASE:
+        case "sqlite":
+            db.init_sqlite(SQLITE_PATH)
 
-    case "mariadb":
-        if not MARIA_DB:
-            raise RuntimeError("MARIA_DB env value missing")
+        case "mariadb":
+            if not MARIA_DB:
+                raise RuntimeError("MARIA_DB env value missing")
 
-        db.init_mariadb(MARIA_DB)
+            db.init_mariadb(MARIA_DB)
 
-    case "dual_db":
-        ...  # TODO
+        case "dual_db":
+            ...  # TODO
 
-    case _:
-        raise RuntimeError("DATABASE env value missing")
+        case _:
+            raise RuntimeError("DATABASE env value missing")
+except OperationalError as e:
+    if "already exists" in str(e):
+        pass  # Tables already created by a concurrent worker, safe to ignore
+    else:
+        raise
+
+
+if __name__ == "__main__":
+    app.run()

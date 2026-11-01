@@ -2,6 +2,7 @@ import io
 
 from flask import Blueprint, render_template, request, send_file
 from flask.typing import ResponseReturnValue
+from passlair import Exporter, Importer
 from passlair.core.readers.helpers import compare_passwords
 from werkzeug.exceptions import RequestEntityTooLarge
 
@@ -9,8 +10,6 @@ from ..helpers.functions import (
     check_login_redirect,
     flash_and_redirect,
     get_create_identity,
-    get_exporter,
-    get_importer,
 )
 from ..helpers.uploads import MAX_UPLOAD_BYTES
 
@@ -52,7 +51,7 @@ def export_passwords() -> ResponseReturnValue:
             return flash_and_redirect(
                 "password_manager.landing", "Wrong password", "warning"
             )
-        exporter = get_exporter()
+        exporter = Exporter(get_create_identity().manager)
         passwords = exporter.serialize(format)
         file_like = io.BytesIO(passwords.encode("utf-8"))
         return send_file(
@@ -82,7 +81,7 @@ def import_passwords() -> ResponseReturnValue:
 
         try:
             content = raw.decode("utf-8") if isinstance(raw, bytes) else raw
-            result = get_importer().import_text(content, fmt)
+            result = Importer(get_create_identity().manager).import_text(content, fmt)
         # UnicodeDecodeError subclasses ValueError, so it must come first.
         except UnicodeDecodeError:
             return flash_and_redirect(
