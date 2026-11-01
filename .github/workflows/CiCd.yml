@@ -20,11 +20,11 @@ permissions:
 jobs:
   linting:
     if: github.ref_type != 'tag'
-    uses: Vronst/workflows/.github/workflows/lint.yml@custom
+    uses: Vronst/workflows/.github/workflows/lint.yml@main
 
   testing:
     if: github.ref_type != 'tag'
-    uses: Vronst/workflows/.github/workflows/test.yml@custom
+    uses: Vronst/workflows/.github/workflows/test.yml@main
     with:
       runner_type: "podman"
       test_command: "uv run --group test pytest && cargo test"
@@ -32,6 +32,7 @@ jobs:
         mkdir -p ./secrets
         echo "${{ secrets.APP_DEK }}" > ./secrets/dek.key
         chmod 600 ./secrets/dek.key
+      secrests: inherit
 
       # pip install uv
       # uv sync
@@ -41,7 +42,7 @@ jobs:
   auto-pr-generation:
     needs: [linting, testing]
     if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
-    uses: Vronst/workflows/.github/workflows/cd.yml@custom
+    uses: Vronst/workflows/.github/workflows/cd.yml@main
     with:
       head: "stage"
       base: "main"
