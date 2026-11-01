@@ -11,7 +11,7 @@ import pytest
 from flask.testing import FlaskClient
 from pymemcache.test.utils import MockMemcacheClient
 
-from tests.support import GOOD_PASSWORD, build_app
+from tests.support import build_app
 
 PROTECTED_URL = "/passwords/"
 

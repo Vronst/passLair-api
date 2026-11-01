@@ -96,6 +96,7 @@ def test_login_required_blocks_anonymous_request() -> None:
 #     assert response.data == b"secret"
 #
 
+
 def test_login_required_blocks_user_with_failed_login(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
