@@ -7,7 +7,7 @@ whole upload in memory safe.
 """
 
 from io import BytesIO
-from typing import IO, override
+from typing import IO
 
 from flask import Flask, Request
 

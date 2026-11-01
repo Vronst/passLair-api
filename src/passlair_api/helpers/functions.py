@@ -17,7 +17,7 @@ def check_login_redirect() -> Response | None:
     if not check_login_status():
         return redirect(url_for("auth.login"))
 
-    return
+    return None
 
 
 def flash_and_redirect(
