@@ -32,7 +32,7 @@ jobs:
         mkdir -p ./secrets
         echo "${{ secrets.APP_DEK }}" > ./secrets/dek.key
         chmod 600 ./secrets/dek.key
-      secrests: inherit
+      secrets: inherit
 
       # pip install uv
       # uv sync
