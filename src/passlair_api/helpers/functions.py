@@ -17,6 +17,8 @@ def check_login_redirect() -> Response | None:
     if not check_login_status():
         return redirect(url_for("auth.login"))
 
+    return
+
 
 def flash_and_redirect(
     endpoint: str, message: str, category: str = "error"

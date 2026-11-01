@@ -17,7 +17,6 @@ MAX_UPLOAD_BYTES = 1024 * 1024
 
 
 class InMemoryRequest(Request):
-    @override
     def _get_file_stream(
         self,
         total_content_length: int | None,
