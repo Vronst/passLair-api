@@ -30,10 +30,8 @@ jobs:
       test_command: "uv run --group test pytest && cargo test"
       setup_command: |
         mkdir -p ./secrets
-        echo "$APP_DEK" > ./secrets/dek.key
+        openssl rand -hex 32 > ./secrets/dek.key
         chmod 600 ./secrets/dek.key
-    secrets:
-      APP_DEK: ${{ secrets.APP_DEK }}
 
       # pip install uv
       # uv sync
