@@ -1,45 +1,57 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Your information · passLair{%
+endblock %} {% block content %}
+<a class="back-link" href="{{ url_for('auth.landing') }}">&larr; Account</a>
+<h1 class="page-title">Your information</h1>
+<p class="page-description">Change your password below.</p>
 
-{% block title %}Your information · passLair{% endblock %}
+<div class="card">
+  <p class="field-hint">
+    Username: <strong>{{ username }}</strong><br />
+    It can't be changed. You'll need it, together with your backup phrase, to
+    recover your account.
+  </p>
+  <form method="post" action="">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <label>
+      Current password
+      <input
+        type="password"
+        name="current_password"
+        autocomplete="current-password"
+        required
+      />
+    </label>
+    <label>
+      New password
+      <input
+        type="password"
+        name="password"
+        autocomplete="new-password"
+        required
+      />
+    </label>
+    <label>
+      Confirm new password
+      <input
+        type="password"
+        name="password_confirm"
+        autocomplete="new-password"
+        required
+      />
+    </label>
 
-{% block content %}
-    <a class="back-link" href="{{ url_for('auth.landing') }}">&larr; Account</a>
-    <h1 class="page-title">Your information</h1>
-    <p class="page-description">Change your password below.</p>
+    {% with messages = get_flashed_messages(category_filter=["warning"]) %} {%
+    if messages %}
+    <ul class="flashes">
+      {% for message in messages %}
+      <li class="flash-error">{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
 
-    <div class="card">
-        <p class="field-hint">
-            Username: <strong>{{ username }}</strong><br>
-            It can't be changed. You'll need it, together with your backup phrase, to recover your account.
-        </p>
-        <form method="post" action="">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <label>
-                Current password
-                <input type="password" name="current_password" autocomplete="current-password" required>
-            </label>
-            <label>
-                New password
-                <input type="password" name="password" autocomplete="new-password" required>
-            </label>
-            <label>
-                Confirm new password
-                <input type="password" name="password_confirm" autocomplete="new-password" required>
-            </label>
-
-            {% with messages = get_flashed_messages(category_filter=["warning"]) %}
-              {% if messages %}
-                <ul class="flashes">
-                {% for message in messages %}
-                  <li class="flash-error">{{ message }}</li>
-                {% endfor %}
-                </ul>
-              {% endif %}
-            {% endwith %}
-
-            <div class="actions-row">
-                <button type="submit" class="btn-primary">Change password</button>
-            </div>
-        </form>
+    <div class="actions-row">
+      <button type="submit" class="btn-primary">Change password</button>
     </div>
+  </form>
+</div>
 {% endblock %}

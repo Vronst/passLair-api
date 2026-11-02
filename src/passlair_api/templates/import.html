@@ -1,44 +1,43 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Import · passLair{% endblock %} {%
+block content %}
+<a class="back-link" href="{{ url_for('data.landing') }}">&larr; Data</a>
+<h1 class="page-title">Import passwords</h1>
+<p class="page-description">Paste an export below, or upload the file.</p>
 
-{% block title %}Import · passLair{% endblock %}
+<div class="card">
+  {% with warnings = get_flashed_messages(category_filter=["warning"]) %} {% if
+  warnings %}
+  <ul class="flashes">
+    {% for message in warnings %}
+    <li class="flash-error">{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% endwith %}
 
-{% block content %}
-    <a class="back-link" href="{{ url_for('data.landing') }}">&larr; Data</a>
-    <h1 class="page-title">Import passwords</h1>
-    <p class="page-description">Paste an export below, or upload the file.</p>
-
-    <div class="card">
-        {% with warnings = get_flashed_messages(category_filter=["warning"]) %}
-          {% if warnings %}
-            <ul class="flashes">
-            {% for message in warnings %}
-              <li class="flash-error">{{ message }}</li>
-            {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
-
-        <form method="post" action="" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <label>
-                Format
-                <select name="format" required>
-                    <option value="json">JSON</option>
-                    <option value="csv">CSV</option>
-                    <option value="txt">Text</option>
-                </select>
-            </label>
-            <label>
-                Export file
-                <input type="file" name="import_file">
-            </label>
-            <label>
-                Or paste export data
-                <textarea name="import_text" placeholder="Paste your exported vault here"></textarea>
-            </label>
-            <div class="actions-row">
-                <button type="submit" class="btn-primary">Import</button>
-            </div>
-        </form>
+  <form method="post" action="" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <label>
+      Format
+      <select name="format" required>
+        <option value="json">JSON</option>
+        <option value="csv">CSV</option>
+        <option value="txt">Text</option>
+      </select>
+    </label>
+    <label>
+      Export file
+      <input type="file" name="import_file" />
+    </label>
+    <label>
+      Or paste export data
+      <textarea
+        name="import_text"
+        placeholder="Paste your exported vault here"
+      ></textarea>
+    </label>
+    <div class="actions-row">
+      <button type="submit" class="btn-primary">Import</button>
     </div>
+  </form>
+</div>
 {% endblock %}

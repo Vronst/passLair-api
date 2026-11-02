@@ -29,17 +29,17 @@ services:
       - SECRET_KEY=YouToughtIWouldPushItXD?
       - SQLITE_PATH=/app/data/passlair.db
     ports:
-      -  "8888:8888"
+      - "8888:8888"
     volumes:
       - app-data:/app/data/passlair.db:z
       - ./secrets/dek.key:/run/secrets/app_dek:ro,z
   nginx:
-      image: nginx:latest
-      volumes:
+    image: nginx:latest
+    volumes:
       - ./nginx/:/etc/nginx/:ro,z
-      depends_on:
+    depends_on:
       - app
-      ports:
+    ports:
       - "9000:443"
 
 volumes:
