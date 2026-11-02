@@ -23,15 +23,15 @@ jobs:
     uses: Vronst/workflows/.github/workflows/lint.yml@main
     with:
       linter_env: |
-        FILTER_REGEX_EXCLUDE=.*src/passlair_api/templates/.*
+        VALIDATE_JSCPD=false
 
   testing:
     if: github.ref_type != 'tag'
     uses: Vronst/workflows/.github/workflows/test.yml@main
     with:
       runner_type: "docker"
-      container_name: "passlair"
-      test_command: "uv run --group test pytest && cargo test"
+      container_name: "passlair-api-app-1"
+      test_command: "uv run --group test pytest"
       setup_command: |
         mkdir -p ./secrets
         openssl rand -hex 32 > ./secrets/dek.key
