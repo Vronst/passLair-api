@@ -20,4 +20,14 @@ COPY . .
 
 RUN uv sync --frozen --no-dev
 
+RUN groupadd -r appuser && useradd -r -g appuser appuser \
+    && chown -R appuser:appuser /app
+
+# 2. Switch to the non-root user
+USER appuser
+
+# 3. Add a healthcheck instruction (CKV_DOCKER_2)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/').read()" || exit 1
+
 CMD ["uv", "run", "gunicorn", "--config", "/app/src/passlair_api/gunicorn_config.py", "passlair_api.app:app"]

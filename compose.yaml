@@ -27,11 +27,11 @@ services:
       - DATABASE=sqlite
       - DEK_FILE_PATH=/run/secrets/app_dek
       - SECRET_KEY=YouToughtIWouldPushItXD?
-      - SQLITE_PATH=/app/passlair.db
+      - SQLITE_PATH=/app/data/passlair.db
     ports:
       -  "8888:8888"
     volumes:
-      - app-data:/app/passlair_api/passlair.db:z
+      - app-data:/app/data/passlair.db:z
       - ./secrets/dek.key:/run/secrets/app_dek:ro,z
   nginx:
       image: nginx:latest

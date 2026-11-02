@@ -21,12 +21,16 @@ jobs:
   linting:
     if: github.ref_type != 'tag'
     uses: Vronst/workflows/.github/workflows/lint.yml@main
+    with:
+      linter_env: |
+          FILTER_REGEX_EXCLUDE=.*src/passlair_api/templates/.*
 
   testing:
     if: github.ref_type != 'tag'
     uses: Vronst/workflows/.github/workflows/test.yml@main
     with:
       runner_type: "podman"
+      container_name: "passlair"
       test_command: "uv run --group test pytest && cargo test"
       setup_command: |
         mkdir -p ./secrets
