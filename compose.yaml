@@ -28,6 +28,7 @@ services:
       - DEK_FILE_PATH=/run/secrets/app_dek
       - SECRET_KEY=YouToughtIWouldPushItXD?
       - SQLITE_PATH=/app/data/passlair.db
+      - UV_CACHE_DIR=/tmp/uv-cache
     ports:
       - "8888:8888"
     volumes:

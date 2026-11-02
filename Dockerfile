@@ -22,6 +22,9 @@ RUN uv sync --frozen --no-dev
 
 RUN groupadd -r appuser && useradd -r -g appuser appuser \
     && chown -R appuser:appuser /app
+# RUN mkdir -p /app/data \
+#     && groupadd -r appuser && useradd -r -g appuser appuser \
+#     && chown -R appuser:appuser /app
 
 # 2. Switch to the non-root user
 USER appuser
