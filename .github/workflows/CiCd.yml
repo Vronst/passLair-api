@@ -29,8 +29,13 @@ jobs:
     if: github.ref_type != 'tag'
     uses: Vronst/workflows/.github/workflows/test.yml@main
     with:
+<<<<<<< HEAD
       runner_type: "podman"
       container_name: "passlair-api_app_1"
+=======
+      runner_type: "docker"
+      container_name: "passlair"
+>>>>>>> f416faf (trying docker instead)
       test_command: "uv run --group test pytest && cargo test"
       setup_command: |
         mkdir -p ./secrets
