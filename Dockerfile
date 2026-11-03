@@ -1,36 +1,32 @@
 FROM python:3.14.10-slim-bookworm
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
+ENV RUSTUP_HOME=/opt/rustup \
+    CARGO_HOME=/opt/cargo
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --no-modify-path
+ENV PATH="/opt/cargo/bin:$PATH"
 
 COPY --from=docker.io/astral/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-COPY pyproject.toml ./
+RUN groupadd --system appgroup && useradd --system --gid appgroup --home-dir /app appuser
 
-COPY uv.lock ./
-
-ENV SECRET_KEY="YouToughtIWouldPushItXD?" DATABASE="sqlite" DEK="" REDIS_HOST="redis"
-
+COPY pyproject.toml uv.lock ./
 COPY . .
 
-RUN uv sync --frozen --no-dev
+RUN chown -R appuser:appgroup /app /opt/rustup /opt/cargo
 
-RUN groupadd -r appuser && useradd -r -g appuser appuser \
-    && chown -R appuser:appuser /app
-# RUN mkdir -p /app/data \
-#     && groupadd -r appuser && useradd -r -g appuser appuser \
-#     && chown -R appuser:appuser /app
-
-# 2. Switch to the non-root user
 USER appuser
 
-# 3. Add a healthcheck instruction (CKV_DOCKER_2)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/').read()" || exit 1
+ENV UV_CACHE_DIR="/app/.uv-cache" \
+    HOME="/app"
+
+RUN uv sync --frozen --no-dev
 
 CMD ["uv", "run", "gunicorn", "--config", "/app/src/passlair_api/gunicorn_config.py", "passlair_api.app:app"]

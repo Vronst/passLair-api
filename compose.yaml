@@ -27,13 +27,13 @@ services:
       - DATABASE=sqlite
       - DEK_FILE_PATH=/run/secrets/app_dek
       - SECRET_KEY=YouToughtIWouldPushItXD?
-      - SQLITE_PATH=/app/data/passlair.db
-      - UV_CACHE_DIR=/tmp/uv-cache
+      - SQLITE_PATH=/app/passlair.db
     ports:
       - "8888:8888"
     volumes:
-      - app-data:/app/data/passlair.db:z
+      - app-data:/app/passlair_api:z
       - ./secrets/dek.key:/run/secrets/app_dek:ro,z
+
   nginx:
     image: nginx:latest
     volumes:
@@ -41,7 +41,7 @@ services:
     depends_on:
       - app
     ports:
-      - "9000:443"
+      - "9000:20434"
 
 volumes:
   redis-data:
