@@ -20,6 +20,7 @@
 }
 
 html {
+  /* stylelint-disable-next-line property-no-vendor-prefix -- Safari only supports the prefixed form */
   -webkit-text-size-adjust: 100%;
 }
 
@@ -82,11 +83,6 @@ a:hover {
   font-weight: 500;
 }
 
-.site-nav a.active,
-.site-nav a:hover {
-  color: var(--gold-400);
-}
-
 main {
   max-width: 640px;
   margin: 0 auto;
@@ -130,6 +126,11 @@ main {
   font-weight: 500;
 }
 
+.site-nav a.active,
+.site-nav a:hover {
+  color: var(--gold-400);
+}
+
 .action-list a:hover {
   border-color: var(--gold-500);
   color: var(--gold-400);
@@ -162,16 +163,16 @@ textarea {
   font-family: inherit;
 }
 
+textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--gold-500);
-}
-
-textarea {
-  min-height: 8rem;
-  resize: vertical;
 }
 
 .field-hint {
@@ -253,7 +254,7 @@ button,
 }
 
 .backup-dialog::backdrop {
-  background: rgb(0 0 0 / 0.7);
+  background: rgb(0 0 0 / 70%);
 }
 
 .backup-dialog h2 {
@@ -303,7 +304,7 @@ button,
 /* Phones: tighter spacing, centered header, full-width stacked actions
    so buttons stay easy to hit with a thumb and nothing needs to scroll
    sideways. */
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .site-header {
     justify-content: center;
     text-align: center;
