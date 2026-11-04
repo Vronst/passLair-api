@@ -20,7 +20,7 @@ RUN groupadd --system appgroup && useradd --system --gid appgroup --home-dir /ap
 COPY pyproject.toml uv.lock ./
 COPY . .
 
-RUN chown -R appuser:appgroup /app /opt/rustup /opt/cargo
+RUN mkdir -p /app/passlair_api && chown -R appuser:appgroup /app /opt/rustup /opt/cargo
 
 USER appuser
 
@@ -28,7 +28,7 @@ ENV UV_CACHE_DIR="/app/.uv-cache" \
     HOME="/app"
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/').read()" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/health').read()" || exit 1
 
 RUN uv sync --frozen --no-dev
 

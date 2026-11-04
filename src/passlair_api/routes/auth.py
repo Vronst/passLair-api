@@ -8,12 +8,16 @@ from ..helpers.functions import (
     check_login_status,
     flash_and_redirect,
     get_create_identity,
+    login_attempts_exceeded,
+    no_store,
+    record_failed_login,
     remove_identity,
     save_identity,
 )
 from ..helpers.wrapers import login_required
 
 auth = Blueprint("auth", __name__, template_folder="../templates", url_prefix="/auth")
+auth.after_request(no_store)
 
 
 @auth.route("/")
@@ -38,6 +42,11 @@ def login() -> ResponseReturnValue:
         return redirect(url_for("password_manager.landing"))
 
     if request.method == "POST":
+        # Checked first, so blocked attempts skip the expensive password hashing.
+        if login_attempts_exceeded():
+            flash("Too many failed attempts. Try again later.", "error")
+            return render_template("login.html"), 429
+
         identity = Identity()
         data = request.form
         username, password = data.get("username", ""), data.get("password", "")
@@ -47,6 +56,7 @@ def login() -> ResponseReturnValue:
             session["username"] = username
             return redirect(url_for("password_manager.landing"))
 
+        record_failed_login()
         flash("Wrong password or username", "error")
 
     return render_template("login.html")

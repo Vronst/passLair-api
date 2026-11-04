@@ -1,5 +1,8 @@
 .venv/
+.git/
 LICENSE
 __pycache__/
 *.pyc
 .env
+nginx/ssl/
+secrets/

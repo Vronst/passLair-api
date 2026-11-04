@@ -8,6 +8,7 @@ from ..helpers.functions import (
     check_login_redirect,
     flash_and_redirect,
     get_create_identity,
+    no_store,
 )
 
 password_manager = Blueprint(
@@ -17,6 +18,7 @@ password_manager = Blueprint(
     url_prefix="/passwords",
 )
 password_manager.before_request(check_login_redirect)
+password_manager.after_request(no_store)
 
 
 @password_manager.route("/")
@@ -93,6 +95,10 @@ def delete_password() -> ResponseReturnValue:
 
         manager = PasswordManager(get_create_identity().manager)
         result = manager.delete_password(service)
-        flash_and_redirect("password_manager.landing", result.message, "info")
+        if not result.success:
+            flash(result.message, "warning")
+            return render_template("passwords.html")
+
+        return flash_and_redirect("password_manager.landing", result.message, "info")
 
     return render_template("passwords.html")
