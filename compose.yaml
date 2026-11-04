@@ -18,6 +18,7 @@ services:
       - -U
       - "0"
 
+  # passlair-api-app-1
   app:
     build:
       context: .
