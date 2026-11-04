@@ -17,6 +17,7 @@ import urllib.error
 import urllib.request
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 from flask.testing import FlaskClient
@@ -73,7 +74,7 @@ def probe_url() -> Iterator[str]:
             try:
                 urllib.request.urlopen(url, timeout=2).read()
                 break
-            except urllib.error.URLError, ConnectionError:
+            except OSError:  # Also covers URLError: not accepting connections yet.
                 if server.poll() is not None or time.monotonic() > deadline:
                     pytest.fail("gunicorn did not start")
                 time.sleep(0.1)
@@ -83,7 +84,7 @@ def probe_url() -> Iterator[str]:
         server.wait(timeout=10)
 
 
-def read_probe(url: str) -> dict[str, object]:
+def read_probe(url: str) -> dict[str, Any]:
     with urllib.request.urlopen(url, timeout=10) as response:
         return json.load(response)
 
@@ -100,14 +101,14 @@ def test_all_gunicorn_workers_share_one_key(probe_url: str) -> None:
 def test_respawned_worker_keeps_the_key(probe_url: str) -> None:
     first = read_probe(probe_url)
 
-    os.kill(int(first["pid"]), 9)  # type: ignore[arg-type]
+    os.kill(first["pid"], 9)
 
-    answers: list[dict[str, object]] = []
+    answers: list[dict[str, Any]] = []
     deadline = time.monotonic() + 20
     while time.monotonic() < deadline and len(answers) < 12:
         try:
             answers.append(read_probe(probe_url))
-        except urllib.error.URLError, ConnectionError:
+        except OSError:  # Also covers URLError: the killed worker's connection.
             time.sleep(0.1)
 
     assert len(answers) == 12

@@ -43,7 +43,8 @@ def server_address() -> Iterator[tuple[str, int]]:
     with Server(("127.0.0.1", 0), MemcachedGetHandler) as server:
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
-        yield server.server_address
+        host, port = server.server_address
+        yield str(host), port
         server.shutdown()
 
 

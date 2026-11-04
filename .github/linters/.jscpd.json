@@ -1,6 +1,4 @@
 {
   "threshold": 0,
-  "ignore": [
-    "src/passlair_api/templates/**"
-  ]
+  "ignore": ["src/passlair_api/templates/**"]
 }

@@ -1,3 +1,7 @@
+"""Gunicorn settings; gunicorn requires these lowercase names."""
+
+# pylint: disable=invalid-name
+
 import os
 
 workers = int(os.environ.get("GUNICORN_PROCESSES", "2"))

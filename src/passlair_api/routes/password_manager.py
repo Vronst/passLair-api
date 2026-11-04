@@ -1,3 +1,5 @@
+"""Routes for saving, retrieving and deleting vault entries."""
+
 from typing import cast
 
 from flask import Blueprint, flash, render_template, request

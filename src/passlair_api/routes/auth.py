@@ -1,3 +1,5 @@
+"""Login, logout, registration and password management routes."""
+
 from typing import cast
 
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
@@ -89,21 +91,21 @@ def user() -> ResponseReturnValue:
 
     identity = get_create_identity()
     form = request.form
-    current_password, new_password, confirm_password = (
+    current_password, changed_password, confirm_password = (
         form.get("current_password"),
         form.get("password"),
         form.get("password_confirm"),
     )
-    if not all([current_password, new_password, confirm_password]):
+    if not all([current_password, changed_password, confirm_password]):
         return flash_and_redirect(
             "auth.user", "Required fields are missing.", "warning"
         )
 
-    if new_password != confirm_password:
+    if changed_password != confirm_password:
         return flash_and_redirect("auth.user", "New passwords do not match", "warning")
 
-    assert current_password and new_password
-    result = identity.change_user_password(new_password, current_password)
+    assert current_password and changed_password
+    result = identity.change_user_password(changed_password, current_password)
 
     if not result.success:
         return flash_and_redirect("auth.user", result.message, "warning")
@@ -132,48 +134,53 @@ def new_password() -> ResponseReturnValue:
     Any failure, and a plain GET, redirects back to the reset form.
     """
 
-    def flash_and_redirect(message: str, type_: str = "error") -> ResponseReturnValue:
+    def back_to_reset_form(message: str, type_: str = "error") -> ResponseReturnValue:
         flash(message, type_)
         return redirect(url_for("auth.reset_password"))
 
     if request.method != "POST":
-        return flash_and_redirect("No backup phrase provided", "warning")
+        return back_to_reset_form("No backup phrase provided", "warning")
 
     backup_phrase = request.form.get("backup_phrase", None)
     if not backup_phrase:
-        return flash_and_redirect("Backup phrase cannot be read.")
+        return back_to_reset_form("Backup phrase cannot be read.")
 
     password, password_confirm = (
         request.form.get("password"),
         request.form.get("password_confirm"),
     )
     if not password or password != password_confirm:
-        return flash_and_redirect(
+        return back_to_reset_form(
             "Passwords must match, and must not be empty", "warning"
         )
 
     username = request.form.get("username")
     if not username:
-        return flash_and_redirect("Username must be non empty", "warning")
+        return back_to_reset_form("Username must be non empty", "warning")
 
     identity = Identity()
     result = identity.reset_user_password(username, backup_phrase, password)
 
     if result.success:
-        _ = flash_and_redirect(
+        _ = back_to_reset_form(
             "Password successfully changed.",
             "info",
         )
         assert result.data
-        return flash_and_redirect(
+        return back_to_reset_form(
             cast(str, result.data.get("backup_phrase")), "backup_phrase"
         )
 
-    return flash_and_redirect("Username or backup phrase incorrect.", "error")
+    return back_to_reset_form("Username or backup phrase incorrect.", "error")
 
 
 @auth.route("/register", methods=["GET", "POST"])
 def register() -> str | ResponseReturnValue:
+    """
+    Basic form for username and password.
+    Creates the account, logs in and shows the backup phrase.
+    """
+
     def flash_warning(message: str) -> ResponseReturnValue:
         flash(message, "warning")
         return redirect(url_for("auth.register"))
@@ -189,7 +196,7 @@ def register() -> str | ResponseReturnValue:
         if not all((username, password, password_confirm)):
             return flash_warning("All field must be filled.")
 
-        elif password != password_confirm:
+        if password != password_confirm:
             return flash_warning("Password and confirm password must be identical!")
 
         result = identity.register_user(username, password)

@@ -16,8 +16,10 @@ from flask import Flask, Request
 MAX_UPLOAD_BYTES = 1024 * 1024
 
 
-class InMemoryRequest(Request):
-    def _get_file_stream(
+class InMemoryRequest(Request):  # pylint: disable=too-few-public-methods
+    """Request that never spools uploads to disk."""
+
+    def _get_file_stream(  # pylint: disable=unused-argument
         self,
         total_content_length: int | None,
         content_type: str | None,

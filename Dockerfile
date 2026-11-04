@@ -1,5 +1,9 @@
 FROM python:3.14.10-slim-bookworm
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Debian removes old package versions, so pinning them would break later builds.
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \

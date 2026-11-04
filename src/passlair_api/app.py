@@ -1,3 +1,5 @@
+"""Creates and configures the Flask application."""
+
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -51,6 +53,7 @@ CSRFProtect(app)
 
 @app.context_processor
 def inject_auth_state() -> dict[str, bool]:
+    """Tells every template whether the user is logged in."""
     return {"logged_in": check_login_status()}
 
 
