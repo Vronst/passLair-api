@@ -33,7 +33,7 @@ jobs:
       container_name: "passlair-api-app-1"
       test_command: "uv run --group test pytest"
       setup_command: |
-        rm -rf ./secrets/dek.key
+        sudo rm -rf ./secrets/dek.key
         mkdir -p ./secrets
         openssl rand -hex 32 > ./secrets/dek.key
         chmod 644 ./secrets/dek.key
