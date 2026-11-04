@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 
 [[package]]
@@ -424,8 +424,8 @@ wheels = [
 
 [[package]]
 name = "passlair"
-version = "0.4.0"
-source = { git = "https://github.com/Vronst/passLair-core?branch=main#6e9df188051c655c370082db193efbd539e923b2" }
+version = "0.4.1"
+source = { git = "https://github.com/Vronst/passLair-core?branch=main#485655161f0676a7ff3fbda8234a11c33e484a38" }
 dependencies = [
     { name = "mnemonic" },
     { name = "passlair-crypto" },

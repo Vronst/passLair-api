@@ -241,6 +241,30 @@ def test_export_can_be_imported_into_another_account(user: FlaskClient) -> None:
 
 
 @pytest.mark.parametrize(
+    "credentials",
+    [
+        {"login": "alice"},
+        {"password": "hunter2-xyz"},
+        {"username": "alice", "password": "hunter2-xyz"},
+        {"Login": "alice", "Password": "hunter2-xyz"},
+        {},
+    ],
+)
+def test_import_without_login_and_password_keys_is_rejected_on_the_form(
+    user: FlaskClient, credentials: dict[str, str]
+) -> None:
+    response = user.post(
+        "/data/import",
+        data={"format": "json", "import_text": json.dumps({"github": credentials})},
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert response.request.path == "/data/import"
+    assert "Invalid JSON export" in response.get_data(as_text=True)
+
+
+@pytest.mark.parametrize(
     "url",
     ["/passwords/", "/passwords/retrieve", "/data/export", "/auth/user"],
 )
