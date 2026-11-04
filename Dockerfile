@@ -27,6 +27,9 @@ USER appuser
 ENV UV_CACHE_DIR="/app/.uv-cache" \
     HOME="/app"
 
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/').read()" || exit 1
+
 RUN uv sync --frozen --no-dev
 
 CMD ["uv", "run", "gunicorn", "--config", "/app/src/passlair_api/gunicorn_config.py", "passlair_api.app:app"]

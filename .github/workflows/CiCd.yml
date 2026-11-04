@@ -37,11 +37,6 @@ jobs:
         openssl rand -hex 32 > ./secrets/dek.key
         chmod 644 ./secrets/dek.key
 
-      # pip install uv
-      # uv sync
-      # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-      # echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
   auto-pr-generation:
     needs: [linting, testing]
     if: github.event_name == 'push' && github.ref == 'refs/heads/stage'
