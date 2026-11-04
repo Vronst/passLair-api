@@ -1,0 +1,151 @@
+"""Tests for the single-form password reset (POST /auth/reset_password/new_password).
+
+Core is replaced by a fake identity, so these tests only cover what the
+route does with the form and with core's result.
+"""
+
+import re
+
+import pytest
+from flask.testing import FlaskClient
+from passlair.dataclasses.facade_result import FacadeResult
+
+from passlair_api.routes import auth as auth_routes
+from tests.support import build_app
+
+RESET_URL = "/auth/reset_password/new_password"
+CSRF_VALUE = re.compile(r'name="csrf_token" value="[^"]*"')
+
+USERNAME = "alice"
+PHRASE = "old backup phrase words"
+NEW_PHRASE = "fresh backup phrase words"
+NEW_PASSWORD = "new-password"
+
+VALID_FORM = {
+    "username": USERNAME,
+    "backup_phrase": PHRASE,
+    "password": NEW_PASSWORD,
+    "password_confirm": NEW_PASSWORD,
+}
+
+
+class FakeIdentity:
+    def __init__(self, result: FacadeResult) -> None:
+        self.result = result
+        self.reset_calls: list[tuple[str, str, str]] = []
+
+    def reset_user_password(
+        self, username: str, backup_phrase: str, new_password: str
+    ) -> FacadeResult:
+        self.reset_calls.append((username, backup_phrase, new_password))
+        return self.result
+
+
+def success() -> FacadeResult:
+    return FacadeResult(
+        success=True, message="Password was reset.", data={"backup_phrase": NEW_PHRASE}
+    )
+
+
+def failure(message: str) -> FacadeResult:
+    return FacadeResult(success=False, message=message, data={})
+
+
+def make_client(monkeypatch: pytest.MonkeyPatch, identity: FakeIdentity) -> FlaskClient:
+    monkeypatch.setattr(auth_routes, "Identity", lambda *_, **__: identity)
+    return build_app().test_client()
+
+
+def post_reset(client: FlaskClient, form: dict[str, str]) -> str:
+    response = client.post(RESET_URL, data=form, follow_redirects=True)
+    assert response.status_code == 200
+    return response.get_data(as_text=True)
+
+
+def test_reset_passes_form_fields_to_core(monkeypatch: pytest.MonkeyPatch) -> None:
+    identity = FakeIdentity(success())
+    client = make_client(monkeypatch, identity)
+
+    post_reset(client, VALID_FORM)
+
+    assert identity.reset_calls == [(USERNAME, PHRASE, NEW_PASSWORD)]
+
+
+def test_successful_reset_shows_new_backup_phrase(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client = make_client(monkeypatch, FakeIdentity(success()))
+
+    body = post_reset(client, VALID_FORM)
+
+    assert 'id="backup-phrase-dialog"' in body
+    assert NEW_PHRASE in body
+
+
+def test_new_backup_phrase_never_appears_in_a_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # URLs end up in browser history, access logs and Referer headers.
+    client = make_client(monkeypatch, FakeIdentity(success()))
+
+    response = client.post(RESET_URL, data=VALID_FORM, follow_redirects=True)
+
+    urls = [r.headers.get("Location", "") for r in response.history]
+    urls.append(response.request.url)
+    for url in urls:
+        assert NEW_PHRASE.split()[0] not in url
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        pytest.param({"password_confirm": "something-else"}, id="passwords-differ"),
+        pytest.param({"password": "", "password_confirm": ""}, id="empty-password"),
+        pytest.param({"backup_phrase": ""}, id="empty-phrase"),
+        pytest.param({"username": ""}, id="empty-username"),
+    ],
+)
+def test_invalid_form_is_rejected_before_core(
+    monkeypatch: pytest.MonkeyPatch, overrides: dict[str, str]
+) -> None:
+    identity = FakeIdentity(success())
+    client = make_client(monkeypatch, identity)
+
+    body = post_reset(client, VALID_FORM | overrides)
+
+    assert identity.reset_calls == []
+    assert 'class="flash-error"' in body
+    assert 'id="backup-phrase-dialog"' not in body
+
+
+def test_failed_reset_shows_error_without_new_phrase(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client = make_client(monkeypatch, FakeIdentity(failure("Decryption failed")))
+
+    body = post_reset(client, VALID_FORM)
+
+    assert 'class="flash-error"' in body
+    assert 'id="backup-phrase-dialog"' not in body
+
+
+def test_unknown_user_and_wrong_phrase_look_identical(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Different error text for "no such user" vs "wrong phrase" would let
+    # anyone probe which usernames exist.
+    unknown_user = post_reset(
+        make_client(monkeypatch, FakeIdentity(failure("User doesn't exists!"))),
+        VALID_FORM,
+    )
+    wrong_phrase = post_reset(
+        make_client(monkeypatch, FakeIdentity(failure("Decryption failed"))),
+        VALID_FORM,
+    )
+
+    # The CSRF token is random per session, so it's the one part allowed to differ.
+    assert without_csrf_token(unknown_user) == without_csrf_token(wrong_phrase)
+
+
+def without_csrf_token(body: str) -> str:
+    return CSRF_VALUE.sub('name="csrf_token" value=""', body)

@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% if request.blueprint == 'password_manager' %} {%
+set page_title = "Passwords" %} {% set page_description = "Look up a password,
+save or update one, or remove one you no longer need." %} {% set default_actions
+= [ ("password_manager.retrieve_password", "Retrieve a password"),
+("password_manager.save_password", "Save or update a password"),
+("password_manager.delete_password", "Delete a password"), ] %} {% elif
+request.blueprint == 'data' %} {% set page_title = "Data" %} {% set
+page_description = "Export your vault to a file, or import one from elsewhere."
+%} {% set default_actions = [ ("data.export_passwords", "Export passwords"),
+("data.import_passwords", "Import passwords"), ] %} {% else %} {% set page_title
+= "Account" %} {% set page_description = "See your username, change your
+password, or log out." %} {% set default_actions = [ ("auth.user", "Your account
+and password"), ("auth.logout", "Log out"), ] %} {% endif %} {% block title %}{{
+page_title }} · passLair{% endblock %} {% block content %}
+<h1 class="page-title">{{ page_title }}</h1>
+<p class="page-description">{{ page_description }}</p>
+
+{% with infos = get_flashed_messages(category_filter=["info"]) %} {% if infos %}
+<ul class="flashes">
+  {% for message in infos %}
+  <li class="flash-info">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %} {% endwith %}
+
+<ul class="action-list">
+  {% for endpoint, label in default_actions %}
+  <li><a href="{{ url_for(endpoint) }}">{{ label }}</a></li>
+  {% endfor %} {% for link in links | default([]) %}
+  <li><a href="{{ url_for(link.url) }}">{{ link.label }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,92 @@
+"""Helper functions"""
+
+import json
+import os
+from typing import cast
+
+from flask import flash, redirect, session, url_for
+from flask_session.base import ServerSideSession
+from passlair.core import Identity
+from passlair.core.crypto import decrypt, encrypt
+from pymemcache.client.base import Client
+from werkzeug import Response
+
+DEK = os.urandom(32)
+# Connects via internal Podman DNS using service name and default port 11211
+cache = Client((os.getenv("MEMCACHED_HOST", "memcache"), 11211))
+
+
+def check_login_redirect() -> Response | None:
+    """Used for requireing to be loged in."""
+    if not check_login_status():
+        return redirect(url_for("auth.login"))
+
+    return None
+
+
+def flash_and_redirect(
+    endpoint: str, message: str, category: str = "error"
+) -> Response:
+    """Allows for quick flash and redirect."""
+    flash(message, category)
+    return redirect(url_for(endpoint))
+
+
+def check_login_status() -> bool:
+    """Helper to check if user is logged in."""
+    identity = get_create_identity()
+    return identity.login_status.success
+
+
+def _get_session_sid() -> str:
+    if (identity_id := cast(ServerSideSession, session).sid) is None:
+        raise RuntimeError("Session is required to create identity manager.")
+
+    return identity_id
+
+
+def save_identity(identity: Identity) -> None:
+    """Saves current user identity data - allows for keeping up session."""
+    identity_id = _get_session_sid()
+    session["init"] = True
+    user_id = identity.manager.user_id
+    encrypted_dek_bytes, nonce = encrypt(identity.manager.get_session_key(), DEK)
+    cache.set(
+        f"user_dek:{identity_id}",
+        json.dumps(
+            {
+                "user_id": user_id,
+                "dek": encrypted_dek_bytes.hex(),
+                "nonce": nonce.hex(),
+            }
+        ),
+        expire=1800,
+    )
+
+
+def get_create_identity() -> Identity:
+    """Creates session with Identity or restores it."""
+    identity = Identity()
+    session["init"] = True
+    if (user_data_string := cache.get(f"user_dek:{_get_session_sid()}")) and (
+        user_data := json.loads(user_data_string)
+    ):
+        identity.restore_session(
+            user_data.get("user_id", ""),
+            decrypt(
+                bytes.fromhex(user_data.get("dek", "")),
+                bytes.fromhex(user_data.get("nonce", "")),
+                DEK,
+            ),
+        )
+
+    return identity
+
+
+def remove_identity() -> None:
+    """Removes identity data."""
+    if not (identity_id := cast(ServerSideSession, session).sid):
+        raise RuntimeError("Nothing to remove")
+
+    _ = cache.delete(f"user_dek:{identity_id}")
+    session.clear()
