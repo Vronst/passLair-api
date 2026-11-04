@@ -1,4 +1,5 @@
 """Helper functions"""
+
 import json
 import os
 from typing import cast
