@@ -11,6 +11,7 @@ from flask import Flask
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect
 from passlair.dataclasses.facade_result import FacadeResult
+from pymemcache.test.utils import MockMemcacheClient
 
 from passlair_api.helpers.uploads import apply_upload_limits
 from passlair_api.routes.auth import auth
@@ -45,6 +46,11 @@ def build_app(csrf: bool = False) -> Flask:
 GOOD_PASSWORD = "right-password"
 
 
+def identity_entries(store: MockMemcacheClient) -> list[bytes]:
+    """Keys of stored user identities. The mock's stats() has no item count."""
+    return [key for key in store._contents if key.startswith(b"user_dek:")]
+
+
 class FakeCoreIdentity:
     """Stands in for passlair.core.Identity: no database, same login state."""
 
@@ -74,6 +80,19 @@ class FakeCoreIdentity:
         self, username: str, backup_phrase: str, new_password: str
     ) -> FacadeResult:
         return FacadeResult(success=False, message="Decryption failed.", data={})
+
+    def change_user_password(
+        self, new_password: str, old_password: str
+    ) -> FacadeResult:
+        if old_password != GOOD_PASSWORD:
+            return FacadeResult(
+                success=False, message="Old password incorrect.", data={}
+            )
+        return FacadeResult(
+            success=True,
+            message="Password was changed",
+            data={"backup_phrase": "new-backup-phrase"},
+        )
 
     def restore_session(self, user_id, dek) -> FacadeResult:
         self._logged_in = True

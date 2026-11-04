@@ -2,8 +2,6 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
-    ports:
-      - "6379:6379"
     restart: unless-stopped
     volumes:
       - redis-data:/data
@@ -26,10 +24,9 @@ services:
       - REDIS_HOST=redis
       - MEMCACHED_HOST=memcached
       - DATABASE=sqlite
-      - SECRET_KEY=YouToughtIWouldPushItXD?
-      - SQLITE_PATH=/app/passlair.db
-    ports:
-      - "8888:8888"
+      - SQLITE_PATH=/app/passlair_api/passlair.db
+    expose:
+      - "8888"
     volumes:
       - app-data:/app/passlair_api:z
 

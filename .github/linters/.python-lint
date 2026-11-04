@@ -1,0 +1,9 @@
+[MASTER]
+# Pytest fixtures and test names trip most of pylint's rules; Ruff, Flake8 and
+# mypy still check the tests.
+ignore-paths=^(.*/)?tests/
+
+[MESSAGES CONTROL]
+# import-error: linters run without the project's dependencies installed.
+# fixme: a TODO is not a defect.
+disable=import-error,fixme

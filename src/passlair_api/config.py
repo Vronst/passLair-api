@@ -1,3 +1,5 @@
+"""Flask configuration read from the environment."""
+
 import os
 from pathlib import Path
 

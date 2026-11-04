@@ -1,20 +1,25 @@
+"""Vault export and import routes."""
+
 import io
 
 from flask import Blueprint, render_template, request, send_file
 from flask.typing import ResponseReturnValue
 from passlair import Exporter, Importer
 from passlair.core.readers.helpers import compare_passwords
+from passlair.share.formats import FORMATS
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from ..helpers.functions import (
     check_login_redirect,
     flash_and_redirect,
     get_create_identity,
+    no_store,
 )
 from ..helpers.uploads import MAX_UPLOAD_BYTES
 
 data = Blueprint("data", __name__, template_folder="../templates", url_prefix="/data")
 data.before_request(check_login_redirect)
+data.after_request(no_store)
 
 
 @data.errorhandler(RequestEntityTooLarge)
@@ -44,18 +49,24 @@ def export_passwords() -> ResponseReturnValue:
     Exports passwords (file download) and redirects.
     """
     if request.method == "POST":
-        if not compare_passwords(
-            (get_create_identity().manager.user_id or ""),
-            request.form.get("password", ""),
-        ) or not (format := request.form.get("format")):
+        fmt = request.form.get("format", "")
+        if fmt not in FORMATS:
             return flash_and_redirect(
-                "password_manager.landing", "Wrong password", "warning"
+                "data.export_passwords", "Choose a valid export format.", "warning"
             )
-        exporter = Exporter(get_create_identity().manager)
-        passwords = exporter.serialize(format)
+
+        manager = get_create_identity().manager
+        if not compare_passwords(
+            (manager.user_id or ""), request.form.get("password", "")
+        ):
+            return flash_and_redirect(
+                "data.export_passwords", "Wrong password", "warning"
+            )
+
+        passwords = Exporter(manager).serialize(fmt)
         file_like = io.BytesIO(passwords.encode("utf-8"))
         return send_file(
-            file_like, download_name=f"password_export.{format}", as_attachment=True
+            file_like, download_name=f"password_export.{fmt}", as_attachment=True
         )
 
     return render_template("export.html")

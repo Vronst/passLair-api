@@ -1,5 +1,9 @@
 FROM python:3.14.10-slim-bookworm
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Debian removes old package versions, so pinning them would break later builds.
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -20,7 +24,7 @@ RUN groupadd --system appgroup && useradd --system --gid appgroup --home-dir /ap
 COPY pyproject.toml uv.lock ./
 COPY . .
 
-RUN chown -R appuser:appgroup /app /opt/rustup /opt/cargo
+RUN mkdir -p /app/passlair_api && chown -R appuser:appgroup /app /opt/rustup /opt/cargo
 
 USER appuser
 
@@ -28,7 +32,7 @@ ENV UV_CACHE_DIR="/app/.uv-cache" \
     HOME="/app"
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/').read()" || exit 1
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/health').read()" || exit 1
 
 RUN uv sync --frozen --no-dev
 

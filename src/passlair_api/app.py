@@ -1,4 +1,7 @@
+"""Creates and configures the Flask application."""
+
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from flask import Flask
@@ -30,7 +33,13 @@ MARIA_DB = os.getenv("MARIA_DB", None)
 app = Flask(__name__)
 app.config.from_mapping(config_mapping)
 app.config.update(
-    {"SESSION_TYPE": "redis", "SESSION_REDIS": Redis(host=REDIS_HOST, port=6379)}
+    {
+        "SESSION_TYPE": "redis",
+        "SESSION_REDIS": Redis(host=REDIS_HOST, port=REDIS_PORT),
+        # Rendering a form stores a CSRF token, so anonymous visitors create
+        # sessions too; expire them instead of keeping them for Flask's 31 days.
+        "PERMANENT_SESSION_LIFETIME": timedelta(hours=1),
+    }
 )
 apply_upload_limits(app)
 app.register_blueprint(auth)
@@ -38,13 +47,21 @@ app.register_blueprint(password_manager)
 app.register_blueprint(data)
 
 Session(app)
-Talisman(app)
+talisman = Talisman(app)
 CSRFProtect(app)
 
 
 @app.context_processor
 def inject_auth_state() -> dict[str, bool]:
+    """Tells every template whether the user is logged in."""
     return {"logged_in": check_login_status()}
+
+
+@app.route("/health")
+@talisman(force_https=False)  # The container healthcheck calls over plain HTTP.
+def health() -> str:
+    """Liveness only: a Redis or memcached outage shouldn't restart the app."""
+    return "ok"
 
 
 try:
