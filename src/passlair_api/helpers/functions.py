@@ -1,3 +1,4 @@
+"""Helper functions"""
 import json
 import os
 from typing import cast
@@ -15,6 +16,7 @@ cache = Client((os.getenv("MEMCACHED_HOST", "memcache"), 11211))
 
 
 def check_login_redirect() -> Response | None:
+    """Used for requireing to be loged in."""
     if not check_login_status():
         return redirect(url_for("auth.login"))
 
@@ -24,11 +26,13 @@ def check_login_redirect() -> Response | None:
 def flash_and_redirect(
     endpoint: str, message: str, category: str = "error"
 ) -> Response:
+    """Allows for quick flash and redirect."""
     flash(message, category)
     return redirect(url_for(endpoint))
 
 
 def check_login_status() -> bool:
+    """Helper to check if user is logged in."""
     identity = get_create_identity()
     return identity.login_status.success
 
@@ -41,6 +45,7 @@ def _get_session_sid() -> str:
 
 
 def save_identity(identity: Identity) -> None:
+    """Saves current user identity data - allows for keeping up session."""
     identity_id = _get_session_sid()
     session["init"] = True
     user_id = identity.manager.user_id
@@ -59,6 +64,7 @@ def save_identity(identity: Identity) -> None:
 
 
 def get_create_identity() -> Identity:
+    """Creates session with Identity or restores it."""
     identity = Identity()
     session["init"] = True
     if (user_data_string := cache.get(f"user_dek:{_get_session_sid()}")) and (
@@ -77,6 +83,7 @@ def get_create_identity() -> Identity:
 
 
 def remove_identity() -> None:
+    """Removes identity data."""
     if not (identity_id := cast(ServerSideSession, session).sid):
         raise RuntimeError("Nothing to remove")
 
