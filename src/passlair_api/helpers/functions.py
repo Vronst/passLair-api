@@ -9,6 +9,7 @@ from passlair.core.crypto import decrypt, encrypt
 from pymemcache.client.base import Client
 from werkzeug import Response
 
+DEK = os.urandom(32)
 # Connects via internal Podman DNS using service name and default port 11211
 cache = Client((os.getenv("MEMCACHED_HOST", "memcache"), 11211))
 
@@ -81,16 +82,3 @@ def remove_identity() -> None:
 
     _ = cache.delete(f"user_dek:{identity_id}")
     session.clear()
-
-
-def load_dek() -> bytes:
-    dek_path = os.getenv("DEK_FILE_PATH", "/run/secrets/app_dek")
-    try:
-        with open(dek_path, "rb") as f:
-            content = f.read().strip()
-            return bytes.fromhex(content.decode("utf-8"))
-    except FileNotFoundError:
-        raise RuntimeError(f"Critical Error: DEK secret file not found at {dek_path}!")
-
-
-DEK = load_dek()

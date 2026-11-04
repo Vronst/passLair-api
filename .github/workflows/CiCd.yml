@@ -32,11 +32,6 @@ jobs:
       runner_type: "docker"
       container_name: "passlair-api-app-1"
       test_command: "uv run --group test pytest"
-      setup_command: |
-        sudo rm -rf ./secrets
-        mkdir -p ./secrets
-        openssl rand -hex 32 > ./secrets/dek.key
-        chmod 644 ./secrets/dek.key
 
   auto-pr-generation:
     needs: [linting, testing]
