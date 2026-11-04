@@ -6,7 +6,7 @@ import os
 from typing import cast
 
 from flask import current_app, flash, redirect, request, session, url_for
-from flask_session.base import ServerSideSession
+from flask_session.base import ServerSideSession, ServerSideSessionInterface
 from passlair.core import Identity
 from passlair.core.crypto import decrypt, encrypt
 from pymemcache.client.base import PooledClient
@@ -105,7 +105,10 @@ def save_identity(identity: Identity) -> None:
     session["init"] = True
     # A new id at login stops a session id planted beforehand from becoming
     # logged in. regenerate() ignores empty sessions, hence "init" above.
-    current_app.session_interface.regenerate(session)
+    interface = current_app.session_interface
+    if not isinstance(interface, ServerSideSessionInterface):
+        raise TypeError("Flask-Session is required to regenerate the session id.")
+    interface.regenerate(cast(ServerSideSession, session))
     identity_id = _get_session_sid()
     user_id = identity.manager.user_id
     encrypted_dek_bytes, nonce = encrypt(
